@@ -1,6 +1,6 @@
 var Ni = require('ni'),
-nohm = require('nohm'),
-redis = false;
+    nohm = require('nohm').Nohm,
+    redis = false;
 
 var modelCache = {},
 first_get = false,
@@ -9,26 +9,24 @@ getMeta = function getMeta (model, forceRefresh, callback) {
     callback = forceRefresh;
     forceRefresh = false;
   }
-  if (forceRefresh || 
-    modelCache === {} || 
-    ! modelCache.hasOwnProperty(model)) {
+  var refreshCache = forceRefresh || modelCache === {} || ! modelCache.hasOwnProperty(model);
+    
+  if (refreshCache) {
     console.log('re-retrieving meta cache.');
     if (!redis)
       redis = Ni.config('nohmclient');
+      
     redis.keys(Ni.config('redis_prefix') + ':meta:*', function (err, keys) {
-      if (Array.isArray(keys) && keys.length > 0 && ! err) {
+      if (! err && Array.isArray(keys) && keys.length > 0) {
+        
         keys.forEach(function (value, i) {
           value = value.toString();
           var modelname = value.replace(/^[^:]*:meta:/, '');
           redis.hgetall(value, function (err, vals) {
             modelCache[modelname] = [];
             if (vals !== null) {
-              vals.forEach(function (val, i) {
-                modelCache[modelname][i] = JSON.parse(val.toString());
-              });
+              modelCache[modelname] = vals;
             }
-            console.dir(modelname);
-            console.dir(model);
             if (modelname === model) {
               callback(modelCache[modelname]);
             } else {
@@ -36,14 +34,17 @@ getMeta = function getMeta (model, forceRefresh, callback) {
             }
           });
         });
+        
       } else {
+        if (err)
+          console.dir(err);
         callback(false);
       }
     });
   } else {
     callback(modelCache[model]);
   }
-}
+};
 
 var getChildren = function (model, id, callback) {
   redis.keys(Ni.config('redis_prefix') + ':relations:' + model + '*:' + id, function (err, keys) {
@@ -90,7 +91,7 @@ module.exports = {
         res.Ni.controller = 'Models'; // since i've overwritten the controller for home to be News, this is neccessary for automatic views
         cb();
       }
-    }
+    };
     if (!first_get) {
       first_get = true;
       getMeta(false, true, doModelInit);
@@ -103,9 +104,9 @@ module.exports = {
     redis.keys(Ni.config('redis_prefix') + ':idsets:*', function (err, replies) {
       res.rlocals.models = [];
       if (replies) {
-      replies.forEach(function (val, i) {
-         res.rlocals.models[i] = val.toString().replace(/^.*\:idsets:/, '');
-      });
+        replies.forEach(function (val, i) {
+           res.rlocals.models[i] = val.toString().replace(/^.*\:idsets:/, '');
+        });
       }
       next();
     });
@@ -128,7 +129,7 @@ module.exports = {
         res.rlocals.ids = replies !== null ? replies : [];
         next();
       });
-    })
+    });
   },
   
   getObject: function (req, res, next, model, id) {
@@ -154,11 +155,11 @@ module.exports = {
   getRelations: function (req, res, next, model, id) {
     if (!model || !id) {
       console.dir('someone tried to access model relations of: "' + model + '" with id #' + id);
-      res.redirect('/Models');
+      return res.redirect('/Models');
     }
     getChildren(model, id, function (children) {
       res.rlocals.relations = children;
       next();
     });
   }
-}
+};

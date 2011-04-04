@@ -30,13 +30,14 @@ require('async').parallel([
       });
     },
     function (cb) {
+      Ni.config('root', __dirname);
       Ni.boot(cb);
     },
     function (cb) {
      redisSessionStore.client.select(Ni.config('redis_session_db'), cb);   
     }
   ], 
-  function() {
+  function(err) {
     
     nohm.setClient(nohmclient);
     Ni.config('nohmclient', nohmclient);  

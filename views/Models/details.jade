@@ -1,4 +1,4 @@
-- if( Array.isArray(props) )
+- if (props)
   table.model_properties(data-model: model)
     tr
       - each prop, name in props
@@ -8,7 +8,9 @@
       - each prop in props
         td
           dl
-            - each p, type in prop
+            - each p, type in JSON.parse(prop)
+              - console.dir(p);
+              - console.dir(type);
               - if( !type.match(/^__/) )
                 dt
                   = type

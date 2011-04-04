@@ -4,8 +4,6 @@ var Ni = require('ni');
 Ni.config('user', 'maritz');
 Ni.config('password', 'password');
 
-Ni.config('root', __dirname);
-
 Ni.config('port', 3003);
 Ni.config('host', null);
 
