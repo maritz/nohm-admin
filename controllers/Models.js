@@ -145,9 +145,7 @@ module.exports = {
       res.rlocals.id = id;
       res.rlocals.vals = [];
       if (replies !== null) {
-        replies.forEach(function (val, i) {
-          res.rlocals.vals[i] = val.toString();
-        });
+        res.rlocals.vals = replies;
         next();
       }
     });

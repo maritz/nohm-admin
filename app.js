@@ -1,7 +1,7 @@
 var express = require('express'),
     RedisStore = require('connect-redis'),
     Ni = require('ni'),
-    nohm = require('nohm'),
+    nohm = require('nohm').Nohm,
     helpers = require(__dirname+'/helpers/general.js');
     
 process.argv.forEach(function (val, index) {
@@ -47,14 +47,9 @@ require('async').parallel([
     var app = express.createServer();
     app.set('view engine', 'jade');
     
-    if (app.set('env') !== 'production') {
-    app.use(express.lint(app));
-    }
-    
     // static stuff
-    app.use(express.conditionalGet());
     app.use(express.favicon(''));
-    app.use(express.staticProvider(__dirname + '/public'));
+    app.use(express['static'](__dirname + '/public'));
     
     // start main app pre-routing stuff
     app.use(express.bodyParser());
