@@ -12,7 +12,8 @@
     link( rel: 'stylesheet', href: '/css/default/style.css' )
     script( src: '/js/modernizr-1.7.min.js' )
   body
-    - console.dir(breadcrumb);
+    - if (breadcrumb)
+      <a href="
     != body
 
     script( src: '//ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js' )
