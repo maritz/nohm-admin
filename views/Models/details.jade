@@ -8,9 +8,7 @@
       - each prop in props
         td
           dl
-            - each p, type in JSON.parse(prop)
-              - console.dir(p);
-              - console.dir(type);
+            - each p, type in prop
               - if( !type.match(/^__/) )
                 dt
                   = type
@@ -27,7 +25,7 @@ p
   | There is a total of
   = ids.length
   |  Objects:
-  ul
+  ul.selectable
     - each id in ids.sort(function (a, b) {return a-b;})
       li
         a.objectId( data-id: id )= id

@@ -3,7 +3,6 @@ var Ni = require('ni'),
     redis = false;
 
 var modelCache = {},
-first_get = false,
 getMeta = function getMeta (model, forceRefresh, callback) {
   if (typeof(forceRefresh) === 'function') {
     callback = forceRefresh;
@@ -18,19 +17,22 @@ getMeta = function getMeta (model, forceRefresh, callback) {
       
     redis.keys(Ni.config('redis_prefix') + ':meta:*', function (err, keys) {
       if (! err && Array.isArray(keys) && keys.length > 0) {
-        
         keys.forEach(function (value, i) {
           value = value.toString();
           var modelname = value.replace(/^[^:]*:meta:/, '');
           redis.hgetall(value, function (err, vals) {
-            modelCache[modelname] = [];
+            modelCache[modelname] = {};
             if (vals !== null) {
-              modelCache[modelname] = vals;
+              for (var val in vals) {
+                if (vals.hasOwnProperty(val)) {
+                  modelCache[modelname][val] = JSON.parse(vals[val]);
+                }
+              }
             }
             if (modelname === model) {
               callback(modelCache[modelname]);
             } else {
-              callback(false);
+              callback(true);
             }
           });
         });
@@ -45,6 +47,7 @@ getMeta = function getMeta (model, forceRefresh, callback) {
     callback(modelCache[model]);
   }
 };
+getMeta(false, true, function () {});
 
 var getChildren = function (model, id, callback) {
   redis.keys(Ni.config('redis_prefix') + ':relations:' + model + '*:' + id, function (err, keys) {
@@ -78,25 +81,17 @@ var getChildren = function (model, id, callback) {
       callback([]);
     }
   });
-}
+};
 
 module.exports = {
   __init: function (cb, req, res, next) {
-    var doModelInit = function () {
-      if (typeof(req.session.logged_in) === 'undefined' || !req.session.logged_in) {
-        res.Ni.action = 'login';
-        res.Ni.controller = 'User';
-        Ni.controllers.User.login(req, res, next);
-      } else {
-        res.Ni.controller = 'Models'; // since i've overwritten the controller for home to be News, this is neccessary for automatic views
-        cb();
-      }
-    };
-    if (!first_get) {
-      first_get = true;
-      getMeta(false, true, doModelInit);
+    if (typeof(req.session.logged_in) === 'undefined' || !req.session.logged_in) {
+      res.Ni.action = 'login';
+      res.Ni.controller = 'User';
+      Ni.controllers.User.login(req, res, next);
     } else {
-      doModelInit();
+      res.Ni.controller = 'Models'; // since i've overwritten the controller for home to be News, this is neccessary for automatic views
+      cb();
     }
   },
   
@@ -116,7 +111,7 @@ module.exports = {
     getMeta(model, function (meta) {
       if (!model) {
         console.dir('someone tried to access an inexistant model:' + model);
-        res.redirect('/Models');
+        return res.redirect('/Models');
       }
       
       res.rlocals.model = model;
@@ -124,7 +119,7 @@ module.exports = {
       redis.smembers(Ni.config('redis_prefix') + ':idsets:' + model, function (err, replies) {
         if (err) {
           console.dir('something went wrong in fetching model details with model:' + model);
-          res.redirect('/Models');
+          return res.redirect('/Models');
         }
         res.rlocals.ids = replies !== null ? replies : [];
         next();
@@ -140,7 +135,7 @@ module.exports = {
     redis.hgetall(Ni.config('redis_prefix') + ':hash:' + model + ':' + id, function (err, replies) {
       if (err) {
         console.dir('someone tried to access an inexistant object of model: "' + model + '" with id #' + id);
-        res.redirect('/Models');
+        return res.redirect('/Models');
       }
       res.rlocals.model = model;
       res.rlocals.id = id;

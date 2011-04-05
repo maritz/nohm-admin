@@ -6,7 +6,7 @@ var express = require('express'),
     
 process.argv.forEach(function (val, index) {
   if (val === '--scss-watch') {
-    require('helpers/scss-watch.js');
+    require(__dirname+'/helpers/scss-watch.js');
   }
 });
 
@@ -20,12 +20,14 @@ var redisSessionStore = new RedisStore({
     port: Ni.config('redis_port'), 
     host:Ni.config('redis_host') });
 
-require('async').parallel([
+require('async').series([
     function (cb) {
       nohmclient.select(Ni.config('redis_nohm_db'), function (err) {
         if (err) {
           console.dir(err);
         }
+        nohm.setClient(nohmclient);
+        Ni.config('nohmclient', nohmclient);
         cb();
       });
     },
@@ -38,9 +40,6 @@ require('async').parallel([
     }
   ], 
   function(err) {
-    
-    nohm.setClient(nohmclient);
-    Ni.config('nohmclient', nohmclient);  
   
     Ni.controllers.home = Ni.controllers.Models;
     
@@ -61,13 +60,17 @@ require('async').parallel([
       secret: Ni.config('cookie_secret'),
       store: redisSessionStore}));
     
-    
     app.use(function (req, res, next) {
       res.original_render = res.render;
       res.rlocals = {};
       res.render = function (file, options) {
         var rlocals = res.rlocals;
         rlocals.session = req.session;
+        rlocals.breadcrumb = {
+          controller: res.Ni.controller,
+          action: res.Ni.action,
+          params: Array.isArray(req.params) && req.params.slice(2)
+        };
         if (typeof(options) === 'undefined') {
           options = {};
         }

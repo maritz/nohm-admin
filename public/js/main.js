@@ -34,7 +34,6 @@ $(document).ready(function () {
     getObjectDetails.apply(this, ['relations', e]);
   });
   
-  $('ul.columnize').columnizeList({cols:8,constrainWidth:1});
 });
 
 
