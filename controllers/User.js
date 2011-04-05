@@ -11,7 +11,7 @@ var userController = module.exports = {
     if (req.body) {
       if (req.body.name === Ni.config('user') && req.body.password === Ni.config('password')) {
         req.session.logged_in = true;
-        res.redirect('/');
+        return res.redirect('/');
       }
     }
     next();
