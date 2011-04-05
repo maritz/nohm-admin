@@ -12,14 +12,27 @@
     link( rel: 'stylesheet', href: '/css/default/style.css' )
     script( src: '/js/modernizr-1.7.min.js' )
   body
-    - if (breadcrumb)
-      <a href="
-    != body
+    header
+      .breadcrumb You are here:
+        a( href: '/'+breadcrumb.controller )= breadcrumb.controller
+        |  -&gt;
+        a( href: '/'+breadcrumb.controller+'/'+breadcrumb.action )= breadcrumb.action
+    #content
+      != body
 
-    script( src: '//ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js' )
+    script( src: '//ajax.googleapis.com/ajax/libs/jquery/1.5/jquery.min.js' )
     script
-      !window.jQuery && document.write(unescape('%3Cscript src="js/jquery-1.4.2.min.js"%3E%3C/script%3E'))
+      !window.jQuery && document.write(unescape('%3Cscript src="js/jquery-1.4.2.min.js"%3E%3C/script%3E'));
+      (function () {
+        pathArr = location.pathname.split('/').splice(1);
+        window.app = {
+          controller: pathArr[0],
+          action: pathArr[1]
+        };
+      })();
     script( src: '/js/main.js' )
+    script( src: '/js/database.js' )
+    script( src: '/js/models.js' )
 
     !='<!--[if lt IE 7 ]>'
       script( src: 'js/dd_belatedpng.js' )

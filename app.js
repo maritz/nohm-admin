@@ -41,7 +41,7 @@ require('async').series([
   ], 
   function(err) {
   
-    Ni.controllers.home = Ni.controllers.Models;
+    Ni.controllers.home = Ni.controllers.Database;
     
     // initialize the main app
     var app = express.createServer();

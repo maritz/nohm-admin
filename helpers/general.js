@@ -1,3 +1,5 @@
+var Ni = require('ni');
+
 exports.merge = function () {
   var result = {};
   for (var i = arguments.length - 1; i >= 0; i--) {
@@ -9,6 +11,33 @@ exports.merge = function () {
     }
   }
   return result;
+};
+
+/**
+ * Redirect to login if not logged in
+ */
+exports.checkLoggedIn = function (req, res, cb) {
+  var loginRequired = typeof(req.session.logged_in) === 'undefined' || !req.session.logged_in;
+  if (loginRequired) {
+    return res.redirect('/User/login');
+  }
+  cb();
+};
+
+/**
+ * Redirect to database connection page when no db is selected or the selected db does not work.
+ */
+exports.checkRedisConnection = function (req, res, cb) {
+  if (req.url !== '/Database/connect' && typeof(req.session.connection) === 'undefined') {
+    var connection = Ni.config(req.session.connection),
+        isValidConnection = connection !== null && typeof(connection.connected) !== 'undefined';
+    if ( ! isValidConnection) {
+      return res.redirect('/Database/connect');
+    } else {
+      req.redisConnection = connection;
+    }
+  }
+  cb();
 };
 
 process.on('uncaughtException', function(excp) {

@@ -1,4 +1,5 @@
 $(document).ready(function () {
+  
   var model = $('[data-model]').attr('data-model');
   $('dd[data-json] a').click(function(e) {
     var dd = $(this).closest('dd');

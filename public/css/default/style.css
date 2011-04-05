@@ -337,16 +337,19 @@ button {
   html { -webkit-text-size-adjust:none; -ms-text-size-adjust:none; } */ }
 
 body {
-  padding: 3% 2%; }
+  padding: 1% 2%; }
+
+.breadcrumb {
+  margin: 5px; }
 
 ul {
   list-style-type: none; }
 
-a:hover {
-  cursor: pointer; }
-
 form label:after {
   content: ": "; }
+form span.error {
+  display: block;
+  color: #c33; }
 
 table.model_properties {
   border-collapse: collapse; }

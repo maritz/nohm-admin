@@ -1,0 +1,9 @@
+form#connect_form( method: 'POST', action: '/Database/connect' )
+  span#general_error.error
+  label( for: 'host' ) Host/Ip
+  input#host( type: 'text', name: 'host', value: form.host )
+  label( for: 'port' ) Port
+  input#port( type: 'text', name: 'port', value: form.port )
+  label( for: 'pwd' ) Password (optional)
+  input#password( type: 'password', name: 'password' )
+  input( type: 'submit', value: 'Connect' )

@@ -90,7 +90,6 @@ module.exports = {
       res.Ni.controller = 'User';
       Ni.controllers.User.login(req, res, next);
     } else {
-      res.Ni.controller = 'Models'; // since i've overwritten the controller for home to be News, this is neccessary for automatic views
       cb();
     }
   },

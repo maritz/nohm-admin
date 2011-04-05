@@ -1,18 +1,25 @@
 @import "_boilerplate.scss";
 
 body {
-  padding: 3% 2%; }
+  padding: 1% 2%; }
+
+.breadcrumb {
+  margin: 5px;
+}
 
 ul {
   list-style-type: none;
 }
 
-a:hover {
-  cursor: pointer;
-}
+form {
 
-form label:after {
-  content: ": "; }
+  label:after {
+    content: ": "; }
+  
+  span.error {
+    display: block;
+    color: #c33; }
+}
 
 table.model_properties {
   border-collapse: collapse;
