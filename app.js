@@ -5,6 +5,8 @@ var file_helper = require('./helpers/file.js');
 
 var connector = require('./helpers/redisConnector');
 
+console.log('WARNING: This application is not secure at all. Run this at your own risk!');
+
 connector.connect(function () {
     
     var model_files = file_helper.getFiles(__dirname, '/models/', ['validations.js']);
