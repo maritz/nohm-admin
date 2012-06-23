@@ -85,7 +85,10 @@ _r(function (app) {
       var default_acl = ['view', 'list', 'create', 'edit', 'delete'];
       this.addLocals({
         acl: {
-          'User': ['self'].concat(default_acl.concat(['grant']))
+          'User': ['self'].concat(default_acl.concat(['grant'])),
+          'Db': ['connection', 'select', 'prefix'],
+          'Model': default_acl,
+          'Instance': default_acl
         }
       });
     },
