@@ -29,13 +29,13 @@ var defaults = {
   },
   "nohm": {
     url: 'localhost',
-    port: 6379,
+    port: 6303,
     db: 5,
     prefix: 'game'
   },
   "redis": {
     url: 'localhost',
-    port: 6379,
+    port: 6303,
     db: 4
   },
   "sessions": {
