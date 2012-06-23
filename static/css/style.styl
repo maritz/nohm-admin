@@ -1,0 +1,107 @@
+@import "nib"
+@import "defaults.styl"
+@import "mixins.styl"
+
+.tabs > .active > a, .tabs > .active > a:hover
+  cursor auto
+
+.hidden
+  display none !important
+
+.error
+  color font-color-error
+
+.nav-pill
+  cursor pointer
+
+.fake_link
+  cursor: pointer
+
+.jGrowl
+  position fixed
+  top 20px
+  left 50%
+  margin-left -250px
+  width 500px
+
+.jGrowl-notification, .jGrowl-closer
+  background-color #ffffff
+  gradient #ccf, white
+  border 1px solid #888
+  border-radius 5px
+  box-shadow 3px, 3px, 4px, #333
+  color #000
+  display none
+  opacity 0.9
+  padding 4px 8px
+
+.success .jGrowl-message, .success .jGrowl-header
+  color #3f3
+
+
+.jGrowl-header
+  font-weight 700
+
+.jGrowl-notification.warning
+  color #e8ac14
+
+.jGrowl-close, .jGrowl-closer
+  float right
+  font-weight bold
+  cursor pointer
+
+*
+  position relative
+
+#userbox
+  border 1px solid #9e869e
+  border-radius 5px
+  box-shadow 2px 2px 0 0 #338;
+  padding 5px 10px
+  position absolute
+  right 10px
+  top 10px
+  
+@keyframes blink_success
+  0%
+    background-color 0
+  
+  50%
+    background-color #7ebf88
+   
+  100%
+    background-color 0
+  
+@keyframes blink_error
+  0%
+    background-color 0
+  
+  50%
+    background-color #de4545
+  
+  100%
+    background-color 0
+
+.success_blink
+  animation-name blink_success
+  animation-duration 0.5s
+.error_blink
+  animation-name blink_error
+  animation-duration 0.5s
+
+
+form
+  label.required
+    font-weight bold
+  
+  &.acl, &.admin
+    .controls
+      width 300px
+  
+  .button-row
+    button
+      margin 4px 10px
+      
+span.one_line
+  text-overflow ellipsis
+  whitespace nowrap

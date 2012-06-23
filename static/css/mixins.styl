@@ -1,0 +1,14 @@
+clear(side)
+  zoom: 1
+  clear: side
+
+absolute( xDir = left, yDir = top, x = 0px, y = 0px)
+  position: absolute;
+  {xDir}: x
+  {yDir}: y
+
+
+opacity(value = 1)
+  opacity: value
+  ieValue = value*100
+  filter: unquote('alpha(opacity='+ieValue+')')

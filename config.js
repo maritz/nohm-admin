@@ -1,22 +1,69 @@
-var Ni = require('ni');
+var env = process.env.NODE_ENV || 'development';
 
+var defaults = {
+  "static": {
+    port: 3003
+  },
+  "socket": {
+    options: {
+      origins: '*:*',
+      log: true,
+      heartbeats: false,
+      authorization: false,
+      transports: [
+        'websocket',
+        'flashsocket',
+        'htmlfile',
+        'xhr-polling',
+        'jsonp-polling'
+      ],
+      'log level': 1,
+      'flash policy server': true,
+      'flash policy port': 3013,
+      'destroy upgrade': true,
+      'browser client': true,
+      'browser client minification': true,
+      'browser client etag': true,
+      'browser client gzip': true
+    }
+  },
+  "nohm": {
+    url: 'localhost',
+    port: 6379,
+    db: 5,
+    prefix: 'game'
+  },
+  "redis": {
+    url: 'localhost',
+    port: 6379,
+    db: 4
+  },
+  "sessions": {
+    secret: "super secret cat",
+    db: 1
+  }
+};
 
-Ni.config('user', 'maritz');
-Ni.config('password', 'password');
+if (env === 'production' || env === 'staging') {
+  defaults["static"].port = 80;
+  defaults.nohm = {
+    host: 'carp.redistogo.com',
+    port: 9391,
+    pw: '3a8d7880bf3757d5a7af2b4029d93f17',
+    db: 0,
+    prefix: 'stack'
+  };
+  defaults.redis = {
+    host: 'carp.redistogo.com',
+    port: 9391,
+    pw: '3a8d7880bf3757d5a7af2b4029d93f17',
+    db: 0
+  };
+  defaults.socket.options["log level"] = 1;
+}
 
-Ni.config('port', 3003);
-Ni.config('host', null);
+if (env === 'staging') {
+  defaults['static'].port = 3004;
+}
 
-
-// redis
-Ni.config('redis_prefix', 'tests');
-Ni.config('redis_host', '127.0.0.1');
-Ni.config('redis_port', '6379');
-//Ni.config('redis_port', '6385');
-Ni.config('redis_general_db', 1);
-Ni.config('redis_session_db', 4);
-Ni.config('redis_nohm_db', 0);
-
-// cookies
-Ni.config('cookie_key', 'nohm-admin');
-Ni.config('cookie_secret', 'add your secret here!');
+module.exports = defaults;

@@ -1,0 +1,101 @@
+<script type="text/x-jade-tmpl" name="breadcrumb">
+ul.breadcrumb
+  li
+    a( href: '##{module}')= module
+    span.divider |
+  li
+    a#reload_page Reload
+</script>
+
+<script type="text/x-jade-tmpl" name="top_navigation">
+ul.nav.nav-tabs
+  li
+    a(href: '#main') Main
+  li
+    a(href: '#user') User
+ul.sub_navigation
+</script>
+
+<script type="text/x-jade-tmpl" name="modal">
+.modal
+  .modal-header
+    a.close(data-dismiss:"modal", href:"#") x
+    h3=header
+  .modal-body
+    !=body
+  if (locals.footer)
+    .modal-footer
+      !=footer
+</script>
+
+<script type="text/x-jade-tmpl" name="pagination">
+ul
+  li("class": (current === 1 ? 'disabled': ''))
+    a(href: '#', data-page: current-1)
+      =_t('pagination.previous')
+      
+  
+  if (num_pages > 10)
+    
+    if (current > 4)
+      - var middle_start = current-2
+      li
+        a(href: '#', data-page: 1) 1
+      li.disabled
+        a(href: '#') ...
+    else
+      - var middle_start = 1
+      
+    if (num_pages-current > 4)
+      - var middle_end = current+2
+    else
+      - var middle_end = num_pages
+    
+    - for (var i = middle_start; i <= middle_end; i++)
+      li("class": (current === i ? 'active': ''))
+        a(href: '#', data-page: i)
+          =i
+  
+    if (num_pages-current > 4)
+      li.disabled
+        a(href: '#') ...
+      li
+        a(href: '#', data-page: num_pages)= num_pages
+        
+  else
+    - for (var i = 1; i <= num_pages; i++)
+      li("class": (current === i ? 'active': ''))
+        a(href: '#', data-page: i)
+          =i
+        
+  li("class": (current === num_pages ? 'disabled': ''))
+    a(href: '#', data-page: current+1)
+      =_t('pagination.next')
+</script>
+
+<script type="text/x-jade-tmpl" name="error">
+- if (data && data.error && data.error.msg === 'need_login')
+  !=partial('need_login_error')
+- else
+  !=partial('general_error')
+</script>
+
+
+<script type="text/x-jade-tmpl" name="need_login_error">
+=$.t('explanation', 'login_required')
+br
+!=$.t(['login_or_register', '<a class="open_login" href="#user/login">', '<a href="#user/register">'], 'login_required')
+</script>
+
+
+<script type="text/x-jade-tmpl" name="general_error">
+| There was a problem while rendering the requested page.
+br
+| You can 
+a.reload_page(href:'#asd') retry
+| , 
+a.go_back(href:'#') go back
+|  or continue browsing from here.
+br
+| If this seems like an error on the page we'd also be happy if you could contact an administrator about this so we can make sure it doesn't happen again.
+</script>

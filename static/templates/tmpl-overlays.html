@@ -1,0 +1,47 @@
+
+<script type="text/x-jade-tmpl" name="login_needed">
+- locals.header = $.t('login_needed', 'overlays')
+- var rand = Math.floor(Math.random()*100000);
+.login( id: 'login'+rand )
+script
+  _.defer(function () {
+    app.view('user', 'login', $('#login'+#{rand}))
+  });
+</script>
+
+<script type="text/x-jade-tmpl" name="error">
+- locals.header= $.t('general_error_header', 'errors')
+p= $.t('general_error', 'errors')
+pre=$.t(locals.error, 'errors')
+</script>
+
+<script type="text/x-jade-tmpl" name="not_found">
+- locals.header = $.t('not_found_header', 'errors');
+=$.t('not_found', 'errors');
+</script>
+
+<script type="text/x-jade-tmpl" name="confirm">
+- locals.header = $.t('confirm_header', 'overlays');
+</script>
+
+<script type="text/x-jade-tmpl" name="confirm_grant_admin">
+- locals.header = $.t('confirm_header', 'overlays');
+!=text
+- locals.footer = partial('confirm_footer_danger', 'yes', 'no')
+</script>
+
+<script type="text/x-jade-tmpl" name="confirm_take_self_admin">
+- locals.header = $.t('confirm_header', 'overlays');
+!=text
+- locals.footer = partial('confirm_footer_danger', 'yes', 'no')
+</script>
+
+<script type="text/x-jade-tmpl" name="confirm_footer">
+button.btn.btn-primary.confirm= $.t(args[0])
+button.btn(data-dismiss: "modal")= $.t(args[1])
+</script>
+
+<script type="text/x-jade-tmpl" name="confirm_footer_danger">
+button.btn.btn-danger.confirm= $.t(args[0])
+button.btn(data-dismiss: "modal")= $.t(args[1])
+</script>
