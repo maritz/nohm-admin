@@ -1,0 +1,8 @@
+node_modules
+.settings.xml
+dump.rdb
+selenium-server*
+static/css/style.css
+.settings
+.c9revisions
+log
