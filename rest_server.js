@@ -54,6 +54,18 @@ server.use(function (req, res, next) {
   req.getPrefix = function () {
     return req.session.nohm_prefix || registry.config.nohm.prefix;
   }
+  
+  var _ok = res.ok;
+  res.ok = function (obj) {
+    var client = req.getDb();
+    obj.db = {
+      client: client.host,
+      port: client.port,
+      database: client.selected_db,
+      prefix: req.getPrefix()
+    };
+    _ok(obj);
+  };
   next();
 });
 
