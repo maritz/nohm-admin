@@ -47,7 +47,11 @@ server.use(function (req, res, next) {
 server.use(function (req, res, next) {
   req.getDb = function() {
     var selection = req.session.selected_db;
-    var db = registry.selected_dbs[selection] || registry.selected_dbs[registry.redis.host+':'+registry.redis.port];
+    var db = registry.selected_dbs[selection];
+    if ( ! db) {
+      db = registry.selected_dbs[registry.redis.host+':'+registry.redis.port];
+      req.db_defaulted = true;
+    }
     return db.client;
   }
   
@@ -62,7 +66,8 @@ server.use(function (req, res, next) {
       client: client.host,
       port: client.port,
       database: client.selected_db,
-      prefix: req.getPrefix()
+      prefix: req.getPrefix(),
+      defaulted: !! req.db_defaulted
     };
     _ok(obj);
   };
