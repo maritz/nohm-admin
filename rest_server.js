@@ -22,9 +22,9 @@ server.use(express.session({
 server.use(express.csrf());
 
 server.use(function (req, res, next) {
-  res.ok = function (data) {
+  res.ok = function (data, meta) {
     data = data || {};
-    res.json({result: 'success', data: data});
+    res.json({result: 'success', data: data, meta: meta});
   };
   
   //console.log(req.method, req.url);
@@ -62,14 +62,16 @@ server.use(function (req, res, next) {
   var _ok = res.ok;
   res.ok = function (obj) {
     var client = req.getDb();
-    obj.db = {
-      client: client.host,
-      port: client.port,
-      database: client.selected_db,
-      prefix: req.getPrefix(),
-      defaulted: !! req.db_defaulted
+    var meta = {
+      db: {
+        client: client.host,
+        port: client.port,
+        database: client.selected_db,
+        prefix: req.getPrefix(),
+        defaulted: !! req.db_defaulted
+      }
     };
-    _ok(obj);
+    _ok(obj, meta);
   };
   next();
 });
