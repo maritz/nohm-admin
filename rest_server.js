@@ -43,6 +43,20 @@ server.use(function (req, res, next) {
   }
 });
 
+// functions to get the selected database and nohm prefix
+server.use(function (req, res, next) {
+  req.getDb = function() {
+    var selection = req.session.selected_db;
+    var db = registry.selected_dbs[selection] || registry.selected_dbs[registry.redis.host+':'+registry.redis.port];
+    return db.client;
+  }
+  
+  req.getPrefix = function () {
+    return req.session.nohm_prefix || registry.config.nohm.prefix;
+  }
+  next();
+});
+
   
 var controller_files = file_helper.getFiles(__dirname, '/controllers/');
 

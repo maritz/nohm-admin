@@ -1,14 +1,11 @@
 var Registry = require(__dirname+'/../registry.js');
 var app = require('express').createServer();
 var auth = require(__dirname+'/../helpers/auth');
-var async = require('async');
 var redis = Registry.redis;
 
 var selected_dbs = Registry.selected_dbs = {};
 
-var default_selection = redis.host+':'+redis.port;
-
-selected_dbs[default_selection] = {
+selected_dbs[redis.host+':'+redis.port] = {
   client: redis,
   num_selected: 1000,
   pw: ''
@@ -28,14 +25,8 @@ function DbError(msg, code){
 
 DbError.prototype.__proto__ = Error.prototype;
 
-var getDb = function (token) {
-  var selected = selected_dbs[token] || selected_dbs[default_selection];
-  return selected.client;
-}
-
-
-app.get('/connection', auth.isLoggedIn, function (req, res, next) {
-  var selected = getDb(req.session.selected_db);
+app.get('/connection', auth.isLoggedIn, auth.may('connection', 'Db'), function (req, res, next) {
+  var selected = req.getDb();
   if (!selected) {
     next(new DbError('Invalid database selected and default fallback does not exist.'));
   }
@@ -45,7 +36,7 @@ app.get('/connection', auth.isLoggedIn, function (req, res, next) {
   });
 });
 
-app.get('/setConnection', auth.isLoggedIn, function (req, res, next) {
+app.get('/setConnection', auth.isLoggedIn, auth.may('connection', 'Db'), function (req, res, next) {
   var host = req.param('host');
   var port = req.param('port');
   var pw = req.param('pw');
@@ -55,7 +46,6 @@ app.get('/setConnection', auth.isLoggedIn, function (req, res, next) {
     if (selected_dbs[req.session.selected_db] && selection !== req.session.selected_db && --selected_dbs[req.session.selected_db].num_selected < 1) {
       selected_dbs[req.session.selected_db].client.quit();
       delete selected_dbs[req.session.selected_db];
-      console.log('disconnected from '+req.session.selected_db);
     }
     req.session.selected_db = selection;
     
@@ -102,14 +92,14 @@ app.get('/setConnection', auth.isLoggedIn, function (req, res, next) {
   }
 });
 
-app.get('/select', function (req, res, next) {
+app.get('/select', auth.may('select', 'Db'), function (req, res, next) {
   res.ok({
-    selected: getDb(req.session.selected_db).selected_db || 0
+    selected: req.getDb().selected_db || 0
   });
 });
 
-app.get('/setSelect', function (req, res, next) {
-  var client = getDb(req.session.selected_db);
+app.get('/setSelect', auth.may('select', 'Db'), function (req, res, next) {
+  var client = req.getDb();
   var selected = client.selected_db || 0;
   var new_select = parseInt(req.param('db'), 10);
   if (selected === new_select) {
@@ -130,13 +120,13 @@ app.get('/setSelect', function (req, res, next) {
 });
 
 
-app.get('/prefix', function (req, res, next) {
+app.get('/prefix', auth.may('prefix', 'Db'), function (req, res, next) {
   res.ok({
-    prefix: req.session.nohm_prefix || Registry.config.nohm.prefix
+    prefix: req.getPrefix()
   });
 });
 
-app.get('/setPrefix', function (req, res, next) {
+app.get('/setPrefix', auth.may('prefix', 'Db'), function (req, res, next) {
   req.session.nohm_prefix = req.param('prefix');
   res.ok({
     prefix: req.session.nohm_prefix

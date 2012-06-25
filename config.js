@@ -36,7 +36,7 @@ var defaults = {
   "redis": {
     url: 'localhost',
     port: 6303,
-    db: 4
+    db: 5
   },
   "sessions": {
     secret: "super secret cat",
