@@ -3,6 +3,7 @@ var app = require('express').createServer();
 var auth = require(__dirname+'/../helpers/auth');
 var redis = Registry.redis;
 var nohm = require('nohm').Nohm;
+var async = require('async');
 
 function ModelError(msg, code){
   this.name = 'UserError';
@@ -33,6 +34,38 @@ app.get('/list', auth.isLoggedIn, auth.may('list', 'Model'), function (req, res,
       res.ok({
         collection: modelNames.sort()
       });
+    }
+  });
+});
+
+
+app.get('/details/:modelname([a-zA-Z]+)', auth.isLoggedIn, auth.may('view', 'Model'), function (req, res, next) {
+  var db = req.getDb();
+  var prefix = req.getPrefix();
+  
+  var modelName = req.param('modelname');
+  
+  async.parallel({
+    properties: function (done) {
+      db.get(prefix+':meta:properties:'+modelName, function (err, props) {
+        if (err) {
+          done(err);
+        } else {
+          done(null, JSON.parse(props));
+        }
+      });
+    },
+    idGenerator: function (done) {
+      db.get(prefix+':meta:idGenerator:'+modelName, done);
+    },
+    version: function (done) {
+      db.get(prefix+':meta:version:'+modelName, done);
+    }
+  }, function (err, result) {
+    if (err) {
+      next(new ModelError(err));
+    } else {
+      res.ok(result);
     }
   });
 });
