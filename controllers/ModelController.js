@@ -1,12 +1,9 @@
-var Registry = require(__dirname+'/../registry.js');
 var app = require('express').createServer();
 var auth = require(__dirname+'/../helpers/auth');
-var redis = Registry.redis;
-var nohm = require('nohm').Nohm;
 var async = require('async');
 
 function ModelError(msg, code){
-  this.name = 'UserError';
+  this.name = 'ModelError';
   if (typeof(msg) === 'string') {
     this.message = msg;
   } else {
@@ -39,7 +36,7 @@ app.get('/list', auth.isLoggedIn, auth.may('list', 'Model'), function (req, res,
 });
 
 
-app.get('/details/:modelname([a-zA-Z]+)', auth.isLoggedIn, auth.may('view', 'Model'), function (req, res, next) {
+app.get('/details/:modelname', auth.isLoggedIn, auth.may('view', 'Model'), function (req, res, next) {
   var db = req.getDb();
   var prefix = req.getPrefix();
   

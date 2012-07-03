@@ -12,7 +12,7 @@ selected_dbs[redis.host+':'+redis.port] = {
 };
 
 function DbError(msg, code){
-  this.name = 'UserError';
+  this.name = 'DbError';
   if (typeof(msg) === 'string') {
     this.message = msg;
   } else {
