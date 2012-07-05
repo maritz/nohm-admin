@@ -30,13 +30,13 @@ var defaults = {
   "nohm": {
     url: 'localhost',
     port: 6303,
-    db: 5,
+    db: 2,
     prefix: 'admin'
   },
   "redis": {
     url: 'localhost',
     port: 6303,
-    db: 5
+    db: 2
   },
   "sessions": {
     secret: "super secret cat",

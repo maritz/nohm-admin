@@ -3,10 +3,11 @@ var registry = require(__dirname+'/../registry.js');
 var nohm = require('nohm').Nohm;
 var redis = require('redis');
 var async = require('async');
+var nohm_redis_client = null;
 
 exports.connect = function (cb) {
   
-  var nohm_redis_client = redis.createClient(config.nohm.port, config.nohm.host, { no_ready_check: true });
+  nohm_redis_client = redis.createClient(config.nohm.port, config.nohm.host, { no_ready_check: true });
   nohm_redis_client.on('error', function () {
     console.log('nohm redis error: ', arguments);
   });
@@ -69,3 +70,11 @@ exports.connect = function (cb) {
   );
   
 };
+
+exports.quit = function () {
+  registry.redis_sessions.quit();
+  registry.redis.quit();
+  registry.redis_pub.quit();
+  registry.redis_sub.quit();
+  nohm_redis_client.quit();
+}

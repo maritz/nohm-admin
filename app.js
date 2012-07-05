@@ -28,5 +28,4 @@ connector.connect(function () {
     require('./socket_server.js').init(server);
     
     console.log('Server listening on port ' + (config['static'].port || 3000) + '.');
-    
 });
