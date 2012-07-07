@@ -36,7 +36,7 @@ app.get('/connection', auth.isLoggedIn, auth.may('connection', 'Db'), function (
   });
 });
 
-app.get('/setConnection', auth.isLoggedIn, auth.may('connection', 'Db'), function (req, res, next) {
+app.post('/connection', auth.isLoggedIn, auth.may('connection', 'Db'), function (req, res, next) {
   var host = req.param('host');
   var port = req.param('port');
   var pw = req.param('pw');
@@ -98,7 +98,7 @@ app.get('/select', auth.may('select', 'Db'), function (req, res, next) {
   });
 });
 
-app.get('/setSelect', auth.may('select', 'Db'), function (req, res, next) {
+app.post('/select', auth.may('select', 'Db'), function (req, res, next) {
   var client = req.getDb();
   var selected = client.selected_db || 0;
   var new_select = parseInt(req.param('db'), 10);
@@ -126,7 +126,7 @@ app.get('/prefix', auth.may('prefix', 'Db'), function (req, res, next) {
   });
 });
 
-app.get('/setPrefix', auth.may('prefix', 'Db'), function (req, res, next) {
+app.post('/prefix', auth.may('prefix', 'Db'), function (req, res, next) {
   req.session.nohm_prefix = req.param('prefix');
   res.ok({
     prefix: req.session.nohm_prefix
