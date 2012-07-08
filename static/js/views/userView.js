@@ -86,7 +86,7 @@ _r(function (app) {
       this.addLocals({
         acl: {
           'User': ['self'].concat(default_acl.concat(['grant'])),
-          'Db': ['connection', 'select', 'prefix'],
+          'Db': ['view', 'connection', 'select', 'prefix'],
           'Model': default_acl,
           'Instance': default_acl
         }
