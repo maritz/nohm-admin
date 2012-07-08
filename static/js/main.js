@@ -24,6 +24,8 @@ $(function () {
         app.go('User/register');
       }
       
+      app.db_box = new app.views.db.box();
+      
       Backbone.history.start();
       var time = +new Date() - start_time;
       console.log('startup time', time);
