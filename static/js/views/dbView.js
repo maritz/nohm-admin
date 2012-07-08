@@ -8,9 +8,6 @@ _r(function (app) {
    */
   app.views.db.box = app.base.formView.extend({
     
-    requires_login: true,
-    reload_on_login: true,
-    
     model: app.models.Db,
     module: 'db',
     action: 'box',
@@ -27,8 +24,6 @@ _r(function (app) {
     afterRender: function () {
       if (app.user_self.get('name')) {
         this.$el.show();
-      } else {
-        debugger;
       }
       app.base.formView.prototype.afterRender.apply(this, Array.prototype.slice.call(arguments));
     },
