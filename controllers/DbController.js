@@ -19,20 +19,22 @@ function DbError(msg, code){
     this.data = msg;
     this.message = 'custom';
   }
-  this.code = code || 500;
+  this.code = code || 504;
   Error.call(this, msg);
 }
 
 DbError.prototype.__proto__ = Error.prototype;
 
-app.get('/connection', auth.isLoggedIn, auth.may('connection', 'Db'), function (req, res, next) {
+app.get('/', auth.isLoggedIn, auth.may('view', 'Db'), function (req, res, next) {
   var selected = req.getDb();
   if (!selected) {
     next(new DbError('Invalid database selected and default fallback does not exist.'));
   }
   res.ok({
-    host: selected.host, 
-    port: selected.port
+    host: selected.host,
+    port: selected.port,
+    selected: selected.selected_db || 0,
+    prefix: req.getPrefix()
   });
 });
 
@@ -72,8 +74,10 @@ app.post('/connection', auth.isLoggedIn, auth.may('connection', 'Db'), function 
     });
     
     if (pw) {
-      connection.auth(pw, function () {
-        next(new DbError('Authentication failed.'));
+      connection.auth(pw, function (err) {
+        if (err) {
+          next(new DbError('Authentication failed.'));
+        }
       });
     }
     
@@ -82,20 +86,16 @@ app.post('/connection', auth.isLoggedIn, auth.may('connection', 'Db'), function 
         client: connection,
         num_selected: 0
       };
+      connection.removeAllListeners('error')
       setConnection(selection);
     });
     
-    connection.on('error', function () {
+    connection.on('error', function (err) {
+      console.log('Connection error.', err);
       next(new DbError('Connection failed.'));
     });
     
   }
-});
-
-app.get('/select', auth.may('select', 'Db'), function (req, res, next) {
-  res.ok({
-    selected: req.getDb().selected_db || 0
-  });
 });
 
 app.post('/select', auth.may('select', 'Db'), function (req, res, next) {
@@ -117,13 +117,6 @@ app.post('/select', auth.may('select', 'Db'), function (req, res, next) {
   } else {
     next(new DbError('Selected database must be from 0 to 15 (inclusive).'));
   }
-});
-
-
-app.get('/prefix', auth.may('prefix', 'Db'), function (req, res, next) {
-  res.ok({
-    prefix: req.getPrefix()
-  });
 });
 
 app.post('/prefix', auth.may('prefix', 'Db'), function (req, res, next) {
