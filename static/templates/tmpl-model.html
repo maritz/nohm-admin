@@ -8,3 +8,82 @@
 - else
   | No models found.
 </script>
+
+<script type="text/x-jade-tmpl" name="details">
+h2
+  = data.get('id')
+
+ul.model_details
+  li
+    label=_t('properties')
+    !=partial('properties', data.get('properties'))
+  li
+    label=_t('version')
+    = data.get('version')
+  li
+    label=_t('idGenerator')
+    = data.get('idGenerator')
+    
+  li
+    br
+    label=_t('instance_plural')
+    br
+    span.fake_link.load_instances= _t('load_instances')
+    div.instance_list
+</script>
+
+<script type="text/x-jade-tmpl" name="properties">
+table
+  thead
+    th=_t('property.name')
+    th=_t('property.type')
+    th=_t('property.defaultValue')
+    th=_t('property.index')
+    th=_t('property.unique')
+    th.last=_t('property.validations')
+    
+  tbody
+    - each prop, name in args[0]
+      tr
+        td=name
+        td=prop.type
+        td=prop.defaultValue
+        td=prop.index
+        td=prop.unique
+        td.last=prop.validations
+</script>
+
+<script type="text/x-jade-tmpl" name="instance_list">
+- if (data && data.models.length)
+
+  if data.paginated
+    .pagination.pagination-centered
+  
+  - if ( ! data.models[0].get('properties') )
+    span.fake_link.load_details= _t('load_details')
+    br
+  
+  table
+    thead
+      th= _t('instance_id')
+      each property, name in model_definition.get('properties')
+        th= name
+      th.last
+        
+    tbody
+    each instance in data.models
+      tr( data-id: instance.get('id') )
+        td= instance.get('id')
+        - var props = instance.get('properties');
+        
+        each property, property_name in model_definition.get('properties')
+          td
+            - if (props && props.hasOwnProperty(property_name))
+              =props[property_name]
+        
+        td.last
+          - if (props && props.__meta_version !== model_definition.get('version'))
+            div.version_warning !
+- else
+  | No instances found.
+</script>

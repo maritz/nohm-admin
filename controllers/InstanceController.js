@@ -30,7 +30,9 @@ app.get('/list/:modelname', auth.isLoggedIn, auth.may('list', 'Instance'), funct
     } else {
       res.ok({
         total: ids.length,
-        collection: ids
+        collection: ids.map(function (id) {
+          return {id: id};
+        })
       });
     }
   });

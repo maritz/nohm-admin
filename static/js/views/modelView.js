@@ -13,4 +13,87 @@ _r(function (app) {
     
   });
   
+  /**
+   * Model details (properties and meta values)
+   */
+  app.views.model.details = app.base.pageView.extend({
+    
+    auto_render: true,
+    model: app.models.Model,
+    required_params: 1,
+    
+    events: {
+      'click .fake_link.load_instances': 'loadInstances'
+    },
+    
+    init: function () {
+      var self = this;
+      
+      this.seasons = {};
+      
+      if (this.params[1]) {
+        // page in url
+        
+      }
+    },
+    
+    load: function (callback) {
+      var self = this;
+      self.model.set({id: self.params[0]});
+      self.model.fetch(function () {
+        callback(null, self.model);
+      });
+    },
+    
+    loadInstances: function (e) {
+      this.instance_list = new InstanceList(null, null, this.$el.find('.instance_list'), [this.model]);
+      $(e.target).hide();
+    }
+    
+  });
+  
+  /**
+   * Instance list
+   */
+  var InstanceList = app.base.paginatedListView.extend({
+    
+    auto_render: true,
+    collection: app.collections.Instance,
+    module: 'model',
+    action: 'instance_list',
+    
+    init: function () {
+      this.model_definition = this.params[0];
+      this.collection.model_name = this.model_definition.get('id');
+      this.addLocals({model_definition: this.model_definition});
+    },
+    
+    // automatically fetch the additional data for each model on the current page.
+    successRender: function () {
+      var self = this;
+      var num_models = this.locals.data.length;
+      var loaded_models = 0;
+      var args_array = Array.prototype.slice.call(arguments);
+      var original_fn = app.base.paginatedListView.prototype.successRender;
+      if (num_models > 0) {
+        this.locals.data.each(function (model) {
+          if (model.get('properties')) {
+            if (--num_models <= 0) {
+              original_fn.apply(self, args_array);
+            }
+          } else {
+            model.fetch(function () {
+              if (++loaded_models === num_models) {
+                original_fn.apply(self, args_array);
+              }
+            });
+          }
+        });
+      } else {
+        original_fn.apply(this, args_array);
+      }
+    }
+    
+  });
+  
 });

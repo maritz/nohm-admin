@@ -39,7 +39,7 @@ app.get('/', auth.isLoggedIn, auth.may('list', 'Model'), function (req, res, nex
 });
 
 
-app.get('/details/:modelname', auth.isLoggedIn, auth.may('view', 'Model'), function (req, res, next) {
+app.get('/:modelname', auth.isLoggedIn, auth.may('view', 'Model'), function (req, res, next) {
   var db = req.getDb();
   var prefix = req.getPrefix();
   
@@ -64,8 +64,10 @@ app.get('/details/:modelname', auth.isLoggedIn, auth.may('view', 'Model'), funct
   }, function (err, result) {
     if (err) {
       next(new ModelError(err));
-    } else {
+    } else if (result.properties) {
       res.ok(result);
+    } else {
+      next(new ModelError('Model does not exist'), 404);
     }
   });
 });
