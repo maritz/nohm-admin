@@ -60,6 +60,9 @@ app.get('/:modelname', auth.isLoggedIn, auth.may('view', 'Model'), function (req
     },
     version: function (done) {
       db.get(prefix+':meta:version:'+modelName, done);
+    },
+    cardinality: function (done) {
+      db.scard(prefix+':idsets:'+modelName, done);
     }
   }, function (err, result) {
     if (err) {

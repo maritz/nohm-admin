@@ -37,6 +37,13 @@ _r(function (app) {
       }
     },
     
+    afterRender: function () {
+      app.base.pageView.prototype.afterRender.apply(this, Array.prototype.slice.apply(arguments));
+      if (this.model.get('cardinality') < 1000) {
+        this.loadInstances();
+      }
+    },
+    
     load: function (callback) {
       var self = this;
       self.model.set({id: self.params[0]});
@@ -45,9 +52,9 @@ _r(function (app) {
       });
     },
     
-    loadInstances: function (e) {
+    loadInstances: function () {
       this.instance_list = new InstanceList(null, null, this.$el.find('.instance_list'), [this.model]);
-      $(e.target).hide();
+      this.$el.find('.fake_link.load_instances').hide();
     }
     
   });

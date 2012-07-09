@@ -13,8 +13,9 @@ module.exports = {
     properties: "Properties",
     version: "Hash of definition",
     idGenerator: "Id generator",
+    cardinality: "Number of instances",
     instance_plural: "Instances",
-    load_instances: "Load instances",
+    load_instances: "Load instances (might take a second or two)",
     property: {
       name: "Name",
       type: "Type",
