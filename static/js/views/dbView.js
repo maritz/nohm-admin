@@ -17,8 +17,8 @@ _r(function (app) {
     $el: $('<div id="db_box"></div>').appendTo('body > div.container'),
     
     events: {
-      'click .current .fake_link': 'showForm',
-      'click form button[name="cancel"]': 'hideForm'
+      'click .show_form': 'showForm',
+      'click .hide_form': 'hideForm'
     },
     
     afterRender: function () {
@@ -35,11 +35,11 @@ _r(function (app) {
     },
     
     showForm: function  () {
-      this.$el.find('.current .fake_link').fadeOut();
-      this.$el.find('form').addClass('show');
+      this.$el.addClass('with_form');
     },
     
     hideForm: function  () {
+      this.$el.removeClass('with_form');
       this.render();
     },
     

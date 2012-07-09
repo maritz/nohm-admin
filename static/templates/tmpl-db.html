@@ -2,7 +2,8 @@
 h2!=_t('headline')
 div.current
   label= _t(['address', _model.get('host'), _model.get('port'), _model.get('selected'), _model.get('prefix')])
-    span.fake_link= _t('change')
+    span.fake_link.show_form= _t('change')
+    span.fake_link.hide_form= _t('forms.cancel')
   
 form.form-horizontal( novalidate: true )
   - var model = locals._model;
@@ -15,7 +16,7 @@ form.form-horizontal( novalidate: true )
     != form('input', { type: 'password', name: 'pw', required: false, validate: false })
     != form('input', { name: 'selected', value: _model.get('selected'), required: true, validate: false })
     != form('input', { name: 'prefix', value: _model.get('prefix'), required: true, validate: false })
-        
-  button.btn( name: 'cancel' )= _t('forms.cancel')
-  input.btn( type: 'submit', name: 'cancel', value: _t('forms.submit') )
+  
+  input.btn.btn-primary( type: 'submit', name: 'submit', value: _t('forms.submit') )
+  button.btn.hide_form( name: 'cancel' )= _t('forms.cancel')
 </script>
