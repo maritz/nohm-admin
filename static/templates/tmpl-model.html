@@ -1,0 +1,10 @@
+<script type="text/x-jade-tmpl" name="index">
+- if (data && data.length)
+  ul
+    each model in data.models
+      li
+        a(href:'#model/details/'+model.get('name'))
+          != model.get('name')
+- else
+  | No models found.
+</script>

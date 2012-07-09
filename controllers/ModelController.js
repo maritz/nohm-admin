@@ -17,19 +17,22 @@ function ModelError(msg, code){
 ModelError.prototype.__proto__ = Error.prototype;
 
 
-app.get('/list', auth.isLoggedIn, auth.may('list', 'Model'), function (req, res, next) {
+app.get('/', auth.isLoggedIn, auth.may('list', 'Model'), function (req, res, next) {
   var db = req.getDb();
   var prefix = req.getPrefix();
   db.keys(prefix+':idsets:*', function (err, keys) {
     if (err) {
       next(new ModelError(err));
     } else {
-      var modelNames = keys.map(function (key) {
+      keys.sort()
+      var models = keys.map(function (key) {
         var last_colon = key.lastIndexOf(':');
-        return key.substr(last_colon+1);
+        return {
+          name: key.substr(last_colon+1)
+        };
       });
       res.ok({
-        collection: modelNames.sort()
+        collection: models
       });
     }
   });
