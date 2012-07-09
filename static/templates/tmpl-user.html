@@ -127,11 +127,11 @@ form( novalidate: true)
 
 <script type="text/x-jade-tmpl" name="userbox">
 - if (data.get('name'))
-  | logged in as 
+  = _t('logged_in_as')
   a(href: '#user/profile')= data.get('name')
   br
-  a(href: '#user/logout') Logout
+  a(href: '#user/logout')= _t('logout')
 - else
-  | yo, dude. need to 
-  a.open_login(href:'#') log the fuck in!
+  - debugger;
+  != _t(['login_info', '<a class="open_login" href="#">', '</a>'])
 </script>

@@ -25,7 +25,9 @@ module.exports = {
     edit_profile: "Update profile",
     list: "Index",
     login: "Log in",
-    logout: "Log out"
+    logout: "Log out",
+    logged_in_as: "You are logged in as ",
+    login_info: "Not %slogged in%s"
   },
   register: {
     headline: "Registration",
@@ -57,7 +59,16 @@ module.exports = {
       create: 'May create new',
       edit: 'May edit any',
       'delete': 'May delete any',
-      grant: 'May grant others any right (careful!)'
+      grant: 'May grant others any right (careful!)',
+      
+      Db: "Database connections (per-user)",
+      connection: "Change host, port and pw",
+      select: "Select other databases",
+      prefix: "Change the nohm prefix",
+      
+      Model: "Model",
+      
+      Instance: "Instance"
     }
   }
 };

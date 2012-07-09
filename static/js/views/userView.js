@@ -87,7 +87,7 @@ _r(function (app) {
         acl: {
           'User': ['self'].concat(default_acl.concat(['grant'])),
           'Db': ['view', 'connection', 'select', 'prefix'],
-          'Model': default_acl,
+          'Model': ['view', 'list'],
           'Instance': default_acl
         }
       });
