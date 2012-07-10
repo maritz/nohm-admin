@@ -26,17 +26,6 @@ _r(function (app) {
       'click .fake_link.load_instances': 'loadInstances'
     },
     
-    init: function () {
-      var self = this;
-      
-      this.seasons = {};
-      
-      if (this.params[1]) {
-        // page in url
-        
-      }
-    },
-    
     afterRender: function () {
       app.base.pageView.prototype.afterRender.apply(this, Array.prototype.slice.apply(arguments));
       if (this.model.get('cardinality') < 1000) {
@@ -69,6 +58,10 @@ _r(function (app) {
     module: 'model',
     action: 'instance_list',
     
+    events: {
+      'click .version_warning': 'showVersionWarning'
+    },
+    
     init: function () {
       this.model_definition = this.params[0];
       this.collection.model_name = this.model_definition.get('id');
@@ -99,6 +92,13 @@ _r(function (app) {
       } else {
         original_fn.apply(this, args_array);
       }
+    },
+    
+    showVersionWarning: function () {
+      app.overlay({
+        view: 'version_warning_overlay',
+        module: 'model'
+      });
     }
     
   });
