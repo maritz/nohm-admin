@@ -9,6 +9,7 @@
   | No models found.
 </script>
 
+
 <script type="text/x-jade-tmpl" name="details">
 h2
   = data.get('id')
@@ -68,7 +69,7 @@ table
   
   table
     thead
-      th= _t('instance_id')
+      th= _t('id')
       each property, name in model_definition.get('properties')
         th= name
       th.last
@@ -76,7 +77,8 @@ table
     tbody
     each instance in data.models
       tr( data-id: instance.get('id') )
-        td= instance.get('id')
+        td
+            = instance.get('id')
         - var props = instance.get('properties');
         
         each property, property_name in model_definition.get('properties')
@@ -93,6 +95,72 @@ table
 
 
 <script type="text/x-jade-tmpl" name="version_warning_overlay">
-- locals.header = _t('warning', 'overlays', 'generic');
+- locals.header = _t('warning', 'overlays', 'generic')
 != _t('text')
+- locals.footer = partial('version_warning_footer')
+</script>
+
+<script type="text/x-jade-tmpl" name="version_warning_footer">
+button.btn.btn-primary.confirm= _t('overwrite')
+button.btn(data-dismiss: "modal")= _t('cancel')
+</script>
+
+
+<script type="text/x-jade-tmpl" name="version_error_overlay">
+- locals.header = _t('error', 'overlays', 'generic')
+!= _t(['text', property_name])
+- locals.footer = partial('version_error_footer')
+</script>
+
+<script type="text/x-jade-tmpl" name="version_error_footer">
+button.btn.btn-danger.confirm= _t('remove')
+button.btn(data-dismiss: "modal")= _t('cancel')
+</script>
+
+
+<script type="text/x-jade-tmpl" name="instance">
+h2!= _t(['instance_of', '<a href="#model/details/'+model_definition.get('id')+'">'+model_definition.get('id')+'</a>']);
+
+ul.instance_details
+  li
+    label=_t('id')
+    =data.get('id')
+    
+  li
+    label=_t('version')
+    = data.get('properties').__meta_version
+    - if (data.get('properties') !== model_definition.get('version'))
+      div.version_warning !
+    
+  li
+    label=_t('properties')
+    
+    table
+      thead
+        th=_t('property.name')
+        th=_t('property.value')
+        th=_t('property.type')
+        th=_t('property.defaultValue')
+        th.last=_t('property.actions')
+    
+      tbody
+        - var model_properties = model_definition.get('properties')
+        - each prop, name in data.get('properties')
+          - if (name !== '__meta_version')
+            tr
+              td=name
+              
+              td=prop
+              
+              td
+                - if (model_properties.hasOwnProperty(name))
+                  =model_properties[name].type
+                  
+              td
+                - if (model_properties.hasOwnProperty(name))
+                  =model_properties[name].defaultValue
+                  
+              td.last
+                - if ( ! model_properties.hasOwnProperty(name))
+                  div.version_error !
 </script>

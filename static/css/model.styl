@@ -1,4 +1,4 @@
-ul.model_details
+ul.model_details, ul.instance_details
   label
     font-weight bold
     display inline
@@ -14,8 +14,8 @@ ul.model_details
     
     &.last
       border-right 0
-        
-  .version_warning
+
+  .version_warning, .version_error
     border 11px solid transparent
     border-bottom 18px solid orange
     border-radius 4px
@@ -23,9 +23,26 @@ ul.model_details
     font-weight bold
     height 0
     line-height 22px
-    margin -19px 0
     text-indent -2px
     width 0
+    
+  .version_error
+    border-bottom-color red
+    
+table
+
+  .version_warning, .version_error
+    margin -19px 0
+
+ul.model_details
+  tbody tr
+    cursor pointer
+    
+    &:hover
+      background-color lighten(#00f, 50%)
+
+ul.instance_details li > .version_warning
+    display inline-block
     
 .instance_list
   tr

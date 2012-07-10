@@ -49,6 +49,8 @@ app.get('/properties/:modelname/:id', auth.isLoggedIn, auth.may('view', 'Instanc
   db.hgetall(prefix+':hash:'+modelName+':'+id, function (err, properties) {
     if (err) {
       next(new InstanceError(err));
+    } else if ( ! properties) {
+      next(new InstanceError('not_found', 404));
     } else {
       res.ok({
         properties: properties

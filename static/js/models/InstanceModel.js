@@ -1,3 +1,0 @@
-_r(function (app) {
-  
-});
