@@ -6,7 +6,7 @@ _r(function (app) {
   /**
    * Model list
    */
-  app.views.model.index = app.base.listView.extend({
+  app.views.model.index = app.base.paginatedListView.extend({
     
     collection: app.collections.Model,
     auto_render: true
@@ -42,7 +42,7 @@ _r(function (app) {
     },
     
     loadInstances: function () {
-      this.instance_list = new InstanceList(null, null, this.$el.find('.instance_list'), [this.model]);
+      this.instance_list = new InstanceList(null, null, this.$el.find('.instance_list'), [this.model, this.params[1], this.params[2]]);
       this.$el.find('.fake_link.load_instances').hide();
     }
     
@@ -72,13 +72,23 @@ _r(function (app) {
     
     events: {
       'click td:has(.version_warning)': 'showVersionWarning',
-      'click tr[data-id]': 'openInstance'
+      'click tr[data-id]': 'openInstance',
+      'click button[type="submit"]': 'searchInstances',
+      'reset .form-search': 'resetSearch'
     },
     
     init: function () {
       this.model_definition = this.params[0];
+      
       this.collection.model_name = this.model_definition.get('id');
-      this.addLocals({model_definition: this.model_definition});
+      this.collection.search = {
+        value: this.params[2] || null,
+        property: this.params[1] || null
+      };
+      
+      this.addLocals({
+        model_definition: this.model_definition
+      });
       _.bind(this);
     },
     
@@ -89,6 +99,7 @@ _r(function (app) {
       var loaded_models = 0;
       var args_array = Array.prototype.slice.call(arguments);
       var original_fn = app.base.paginatedListView.prototype.successRender;
+      
       if (num_models > 0) {
         this.locals.data.each(function (model) {
           if (model.get('properties')) {
@@ -114,6 +125,22 @@ _r(function (app) {
     openInstance: function (e) {
       var id = $(e.target).closest('tr').data('id');
       app.go('model/instance/'+this.model_definition.get('id')+'/'+id);
+    },
+    
+    searchInstances: function (e) {
+      e.preventDefault();
+      this.collection.reset();
+      var search = this.collection.search = {
+        value: this.$el.find('.form-search input[type="text"]').val(),
+        property: this.$el.find('.form-search select').val()
+      };
+      
+      app.navigate('model/details/'+this.params[0].get('id')+'/'+search.property+'/'+search.value);
+      this.render();
+    },
+    
+    resetSearch: function () {
+      app.go('model/details/'+this.params[0].get('id'));
     }
     
   });
@@ -134,16 +161,31 @@ _r(function (app) {
     
     load: function (callback) {
       var self = this;
-      self.model.set({id: self.params[1]});
-      self.model.model_name = self.params[0];
-      self.model.fetch(function () {
+      var model_name = self.params[0];
+      var instance_id = self.params[1];
+      
+      async.parallel({
+        instance: function (done) {
+          self.model.set({id: instance_id});
+          self.model.model_name = model_name;
+          self.model.fetch(function (result) {done(null, result);});
+        },
         
-        self.model_definition = new app.models.Model();
-        self.model_definition.set({id: self.params[0]});
-        self.model_definition.fetch(function () {
-          self.addLocals({model_definition: self.model_definition});
-          callback(null, self.model);
-        });
+        model_definition: function (done) {
+          var model_definition = new app.models.Model();
+          model_definition.set({id: model_name});
+          model_definition.fetch(function (result) {done(null, result);});
+        },
+        
+        relations: function (done) {
+          var relations = new app.models.Relation();
+          relations.model_name = model_name;
+          relations.instance_id = instance_id;
+          relations.fetch(function (result){done(null, result);});
+        }
+      }, function (err, results) {
+        self.addLocals(results);
+        callback(err, results.instance);
       });
     },
     

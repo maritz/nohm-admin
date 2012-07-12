@@ -31,7 +31,6 @@ ul.model_details
   li
     br
     label=_t('instance_plural')
-    br
     span.fake_link.load_instances= _t('load_instances')
     div.instance_list
 </script>
@@ -57,7 +56,30 @@ table
         td.last=prop.validations
 </script>
 
+<script type="text/x-jade-tmpl" name="instance_search">
+//- args[0] = properties
+//- args[1] = search
+form.form-search        
+  .input-append
+  
+    input.search-query.input-medium( type: 'text', value: args[1].value )
+    
+    select.input-medium
+      each prop, property_name in args[0]
+        - if (prop.index || prop.unique)
+          option(selected: args[1].property === property_name)
+            =property_name
+        
+    button.btn.search-query( type: 'submit', data-form: 'submit' )=_t('search')
+    button.btn.search-query( type: 'reset', data-form: 'reset' )=_t('reset')
+</script>
+
 <script type="text/x-jade-tmpl" name="instance_list">
+- var properties = model_definition.get('properties');
+
+- if (data.models.length || collection.search.value)
+  !=partial('instance_search', properties, collection.search)
+  
 - if (data && data.models.length)
 
   if data.paginated
@@ -70,7 +92,7 @@ table
   table
     thead
       th= _t('id')
-      each property, name in model_definition.get('properties')
+      each property, name in properties
         th= name
       th.last
         
@@ -81,7 +103,7 @@ table
             = instance.get('id')
         - var props = instance.get('properties');
         
-        each property, property_name in model_definition.get('properties')
+        each property, property_name in properties
           td
             - if (props && props.hasOwnProperty(property_name))
               =props[property_name]
@@ -90,7 +112,7 @@ table
           - if (props && props.__meta_version !== model_definition.get('version'))
             div.version_warning !
 - else
-  | No instances found.
+  =_t('no_instances')
 </script>
 
 
@@ -163,4 +185,23 @@ ul.instance_details
               td.last
                 - if ( ! model_properties.hasOwnProperty(name))
                   div.version_error !
+  
+  li
+    label=_t('relations')
+    - if (_.isEmpty(relations.attributes))
+      =_t('no_relations')
+    - else
+      ul
+        each relation, related_name in relations.attributes
+          li
+            .related_name= _t(['related_name', related_name])
+            ul
+              each ids, relation_name in relation
+                li
+                  .relation_name= _t(['relation_name', relation_name])
+                  ul
+                    each id in ids
+                      li
+                        a( href:'#model/instance/'+related_name+'/'+id)
+                          = id
 </script>

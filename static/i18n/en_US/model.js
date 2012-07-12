@@ -28,6 +28,9 @@ module.exports = {
     load_instances: "Load instances (might take a second or two)"
   },
   instance_list: {
+    search: "Search",
+    reset: "Reset",
+    no_instances: "No instances found."
   },
   version_warning_overlay: {
     text: "This instance was saved with a model definition that is not identical to that of the last saved instance of this model.<br/>\
@@ -42,6 +45,10 @@ module.exports = {
     remove: "Remove"
   },
   instance: {
-    instance_of: 'Instance of %s'
+    instance_of: "Instance of %s",
+    no_relations: "This model does not have any relations. It is lonely and quite possibly a little sad.",
+    relations: "Relations",
+    related_name: "To model \"%s\"",
+    relation_name: "%s"
   }
 };

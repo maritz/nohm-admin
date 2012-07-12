@@ -72,27 +72,32 @@ app.get('/relations/:modelname/:id', auth.isLoggedIn, auth.may('view', 'Instance
       db.smembers(prefix+':relationKeys:'+modelName+':'+id, done);
     },
     function (keys, done) {
-      async.map(keys, function (key, cb) {
+      var relations = {};
+      async.forEach(keys, function (key, cb) {
         var parts = key.split(':');
         var related_model = parts[4];
         var relation_name = parts[3];
         
         db.smembers(key, function (err, ids) {
-          cb(err, {
-            related_model: related_model,
-            relation_name: relation_name,
-            ids: ids
-          });
+          if (err) {
+            cb(err);
+          } else {
+            if ( ! relations.hasOwnProperty(related_model)) {
+              relations[related_model] = {};
+            }
+            relations[related_model][relation_name] = ids;
+            cb(null);
+          }
         });
-      }, done);
+      }, function (err) {
+        done(err, relations);
+      });
     }
   ], function (err, result) {
     if (err) {
       next(new InstanceError(err));
     } else {
-      res.ok({
-        relations: result
-      });
+      res.ok(result);
     }
   });
 });
@@ -112,15 +117,17 @@ app.get('/find/:modelname/:property/:value', auth.isLoggedIn, auth.may('list', '
     },
     function (property_string, done) {
       var props = JSON.parse(property_string);
+      if ( ! props.hasOwnProperty(property)) {
+        return done('Invalid property in search parameters: '+property, null);
+      }
+      
       var is_indexed = props[property].index;
       var is_unique = props[property].unique;
-      if ( ! props.hasOwnProperty(property)) {
-        done('Invalid property in search parameters: '+property, null);
-      } else if ( ! is_indexed && ! is_unique) {
+      if ( ! is_indexed && ! is_unique) {
         done('Property in search parameters is not indexed or unique: '+property, null);
       } else {
         if (is_unique) {
-          db.get(prefix+':uniques:'+modelName+':'+value, done);
+          db.get(prefix+':uniques:'+modelName+':'+property+':'+value, done);
         } else {
           db.smembers(prefix+':index:'+modelName+':'+property+':'+value, done);
         }
@@ -130,8 +137,18 @@ app.get('/find/:modelname/:property/:value', auth.isLoggedIn, auth.may('list', '
     if (err) {
       next(new InstanceError(err));
     } else {
+      if ( ! Array.isArray(result)) {
+        if (result === null) {
+          result = [];
+        } else {
+          result = [result];
+        }
+      }
       res.ok({
-        ids: result
+        requested: value,
+        collection: result.map(function (id) {
+          return {id: id};
+        })
       });
     }
   });

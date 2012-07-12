@@ -10,5 +10,13 @@ _r(function (app) {
       return this.urlRoot+'properties/'+this.model_name+'/'+this.get('id');
     }
   });
+
+  app.models.Relation = app.base.model.extend({
+    urlRoot: '/REST/Instance/',
+    
+    url: function () {
+      return this.urlRoot+'relations/'+this.model_name+'/'+this.instance_id;
+    }
+  });
   
 });
