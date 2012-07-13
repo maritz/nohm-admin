@@ -187,7 +187,7 @@ app.get('/find/:modelname/:property/:value', auth.isLoggedIn, auth.may('list', '
 });
 
 
-app.del('/:modelname/:id', auth.isLoggedIn, auth.may('list', 'Instance'), function (req, res, next) {
+app.del('/:modelname/:id', auth.isLoggedIn, auth.may('delete', 'Instance'), function (req, res, next) {
   var db = req.getDb();
   var prefix = req.getPrefix();
   
