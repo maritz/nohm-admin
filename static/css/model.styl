@@ -16,23 +16,14 @@ ul.model_details, ul.instance_details
       border-right 0
 
   .version_warning, .version_error
-    border 11px solid transparent
-    border-bottom 18px solid orange
-    border-radius 4px
-    cursor pointer
-    font-weight bold
-    height 0
-    line-height 22px
-    text-indent -2px
-    width 0
+    color orange
+    font-size 1.3em
+    margin-bottom -.4em
     
   .version_error
-    border-bottom-color red
+    color red
     
 table
-
-  .version_warning, .version_error
-    margin -19px 0
 
 .instance_list
   tbody tr
@@ -40,6 +31,7 @@ table
     
     &:hover
       background-color lighten(#00f, 50%)
+  
 
 ul.instance_details li > .version_warning
     display inline-block

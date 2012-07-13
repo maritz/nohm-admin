@@ -70,8 +70,12 @@ form.form-search
           option(selected: args[1].property === property_name)
             =property_name
         
-    button.btn.search-query( type: 'submit', data-form: 'submit' )=_t('search')
-    button.btn.search-query( type: 'reset', data-form: 'reset' )=_t('reset')
+    button.btn.search-query( type: 'submit', data-form: 'submit' )
+      i.icon-search
+      =_t('search')
+    button.btn.search-query( type: 'reset', data-form: 'reset' )
+      i.icon-remove
+      =_t('reset')
 </script>
 
 <script type="text/x-jade-tmpl" name="instance_list">
@@ -110,7 +114,7 @@ form.form-search
         
         td.last
           - if (props && props.__meta_version !== model_definition.get('version'))
-            div.version_warning !
+            i.icon-warning-sign.version_warning
 - else
   =_t('no_instances')
 </script>
@@ -152,7 +156,7 @@ ul.instance_details
     label=_t('version')
     = data.get('properties').__meta_version
     - if (data.get('properties') !== model_definition.get('version'))
-      div.version_warning !
+      i.icon-warning-sign.version_warning
     
   li
     label=_t('properties')
@@ -184,7 +188,7 @@ ul.instance_details
                   
               td.last
                 - if ( ! model_properties.hasOwnProperty(name))
-                  div.version_error !
+                  i.icon-warning-sign.version_error
   
   li
     label=_t('relations')
