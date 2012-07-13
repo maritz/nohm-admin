@@ -156,31 +156,36 @@ _r(function (app) {
     
     events: {
       'click .version_warning': 'showVersionWarning',
-      'click ..version_error': 'showVersionError'
+      'click .version_error': 'showVersionError',
+      'click button.edit': 'editProperty',
+      'click button.unlink': 'unlink',
+      'click button.remove': 'removeInstance',
+      'click button.link': 'link',
+      'click button.fix_ndex': 'fixIndex'
     },
     
     load: function (callback) {
       var self = this;
-      var model_name = self.params[0];
-      var instance_id = self.params[1];
+      this.model_name = self.params[0];
+      this.instance_id = self.params[1];
       
       async.parallel({
         instance: function (done) {
-          self.model.set({id: instance_id});
-          self.model.model_name = model_name;
+          self.model.set({id: self.instance_id});
+          self.model.model_name = self.model_name;
           self.model.fetch(function (result) {done(null, result);});
         },
         
         model_definition: function (done) {
           var model_definition = new app.models.Model();
-          model_definition.set({id: model_name});
+          model_definition.set({id: self.model_name});
           model_definition.fetch(function (result) {done(null, result);});
         },
         
         relations: function (done) {
           var relations = new app.models.Relation();
-          relations.model_name = model_name;
-          relations.instance_id = instance_id;
+          relations.model_name = self.model_name;
+          relations.instance_id = self.instance_id;
           relations.fetch(function (result){done(null, result);});
         }
       }, function (err, results) {
@@ -205,6 +210,35 @@ _r(function (app) {
           property_name: prop_name
         }
       });
+    },
+    
+    editProperty: function (e) {
+      
+    },
+    
+    unlink: function (e) {
+      
+    },
+    
+    removeInstance: function (e) {
+      var self = this;
+      app.overlay({
+        view: 'remove_overlay',
+        module: 'model',
+        confirm: function () {
+          self.model.remove(function () {
+            app.go('model/details/'+self.model_name);
+          });
+        }
+      });
+    },
+    
+    link: function (e) {
+      
+    },
+    
+    fixIndex: function (e) {
+      
     }
     
   });

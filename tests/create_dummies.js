@@ -11,7 +11,8 @@ nohm.model('Test', {
     },
     hurg: {
       type: 'integer',
-      defaultValue: db
+      defaultValue: db,
+      index: true
     }
   }
 });

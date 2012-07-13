@@ -8,6 +8,19 @@ _r(function (app) {
     urlRoot: '/REST/Instance/',
     url: function () {
       return this.urlRoot+'properties/'+this.model_name+'/'+this.get('id');
+    },
+    
+    remove: function (callback) {
+      var self = this;
+      app.getCsrf(function (token) {
+        $.ajax({
+          data: {
+            _csrf: token
+          },
+          url: self.urlRoot+self.model_name+'/'+self.get('id'),
+          type: 'DELETE'
+        }).success(callback);
+      });
     }
   });
 

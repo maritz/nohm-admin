@@ -1,4 +1,4 @@
-ul.model_details, ul.instance_details
+.main_content.model
   label
     font-weight bold
     display inline
@@ -23,8 +23,16 @@ ul.model_details, ul.instance_details
   .version_error
     color red
     
+  
+  & > ul > li
+    margin 15px 0
+    
 
 .instance_list
+
+  tr
+    border-bottom 1px dotted #ddd
+    
   tbody tr
     cursor pointer
     
@@ -32,9 +40,7 @@ ul.model_details, ul.instance_details
       background-color lighten(#00f, 50%)
   
 
-ul.instance_details li > .version_warning
-    display inline-block
+.instance_details
     
-.instance_list
-  tr
-    border-bottom 1px dotted #ddd
+  .btn
+    margin 0 5px

@@ -1,6 +1,9 @@
 <script type="text/x-jade-tmpl" name="sub_navigation">
 </script>
 
+<!--
+ Model list
+ -->
 <script type="text/x-jade-tmpl" name="index">
 - if (data && data.length)
   ul
@@ -13,6 +16,9 @@
 </script>
 
 
+<!--
+ Model details
+ -->
 <script type="text/x-jade-tmpl" name="details">
 h2
   = data.get('id')
@@ -38,6 +44,11 @@ ul.model_details
     div.instance_list
 </script>
 
+
+<!--
+ Properties table
+   args[0] = properties
+ -->
 <script type="text/x-jade-tmpl" name="properties">
 table
   thead
@@ -69,9 +80,13 @@ table
         td.last=JSON.stringify(prop.validations)
 </script>
 
+
+<!--
+ Instance search
+   args[0] = properties
+   args[1] = search
+ -->
 <script type="text/x-jade-tmpl" name="instance_search">
-//- args[0] = properties
-//- args[1] = search
 form.form-search        
   .input-append
   
@@ -91,6 +106,10 @@ form.form-search
       =_t('reset')
 </script>
 
+
+<!--
+ Instance list
+ -->
 <script type="text/x-jade-tmpl" name="instance_list">
 - var properties = model_definition.get('properties');
 
@@ -135,6 +154,9 @@ form.form-search
 </script>
 
 
+<!--
+ Version warning overlay
+ -->
 <script type="text/x-jade-tmpl" name="version_warning_overlay">
 - locals.header = _t('warning', 'overlays', 'generic')
 != _t('text')
@@ -147,6 +169,9 @@ button.btn(data-dismiss: "modal")= _t('cancel')
 </script>
 
 
+<!--
+ Version error overlay
+ -->
 <script type="text/x-jade-tmpl" name="version_error_overlay">
 - locals.header = _t('error', 'overlays', 'generic')
 != _t(['text', property_name])
@@ -159,17 +184,35 @@ button.btn(data-dismiss: "modal")= _t('cancel')
 </script>
 
 
+<!--
+ Remove overlay
+ -->
+<script type="text/x-jade-tmpl" name="remove_overlay">
+- locals.header = _t('warning', 'overlays', 'generic')
+!= _t(['text'])
+- locals.footer = partial('remove_overlay_footer')
+</script>
+
+<script type="text/x-jade-tmpl" name="remove_overlay_footer">
+button.btn.btn-danger.confirm= _t('remove')
+button.btn(data-dismiss: "modal")= _t('cancel')
+</script>
+
+
+<!--
+ Instance details
+ -->
 <script type="text/x-jade-tmpl" name="instance">
 h2!= _t(['instance_of', '<a href="#model/details/'+model_definition.get('id')+'">'+model_definition.get('id')+'</a>']);
 
 ul.instance_details
   li
     label=_t('id')
-    =data.get('id')
+    span=data.get('id')
     
   li
     label=_t('version')
-    = data.get('properties').__meta_version
+    span= data.get('properties').__meta_version
     - if (data.get('properties').__meta_version !== model_definition.get('version'))
       i.icon-warning-sign.version_warning
     
@@ -214,6 +257,9 @@ ul.instance_details
               td.last
                 - if ( ! model_properties.hasOwnProperty(name))
                   i.icon-warning-sign.version_error
+                button.btn.edit
+                  i.icon-edit
+                  =_t('edit')
   
   li
     label=_t('relations')
@@ -223,14 +269,34 @@ ul.instance_details
       ul
         each relation, related_name in relations.attributes
           li
-            .related_name= _t(['related_name', related_name])
+            .related_name!= _t(['related_name', '<a href="#model/details/'+related_name+'">'+related_name+'</a>'])
             ul
               each ids, relation_name in relation
                 li
-                  .relation_name= _t(['relation_name', relation_name])
+                  = _t(['relation_name', relation_name])
                   ul
                     each id in ids
-                      li
+                      li.related_ids
                         a( href:'#model/instance/'+related_name+'/'+id)
                           = id
+                        button.btn.unlink
+                          i.icon-remove-circle
+                          =_t('unlink')
+                          
+  li
+    label=_t('actions')
+    
+    - if (data.get('wrong_indexes').index.length > 0 || data.get('wrong_indexes').unique.length > 0) 
+      button.btn.fix_index
+        i.icon-warning-sign
+        =_t('fix_index')
+      
+    button.btn.link
+      i.icon-link
+      =_t('link')
+        
+    button.btn.remove
+      i.icon-trash
+      =_t('remove')
+      
 </script>

@@ -46,14 +46,54 @@ app.get('/properties/:modelname/:id', auth.isLoggedIn, auth.may('view', 'Instanc
   var modelName = req.param('modelname');
   var id = req.param('id');
   
-  db.hgetall(prefix+':hash:'+modelName+':'+id, function (err, properties) {
+  async.auto({
+    hash: function (callback) {
+      db.hgetall(prefix+':hash:'+modelName+':'+id, callback);
+    },
+    properties: function (callback) {
+      db.get(prefix+':meta:properties:'+modelName, callback);
+    },
+    indexChecked: ['hash', 'properties', function (callback, results) {
+      if ( ! results.hash) {
+        return callback();
+      }
+      var props = JSON.parse(results.properties);
+      var indexes = [];
+      var uniques = [];
+      async.forEach(Object.keys(props), function (name, next) {
+        if (props[name].index) {
+          db.sismember(prefix+':index:'+modelName+':'+name+':'+results.hash[name], id, function (err, is_indexed) {
+            if ( ! is_indexed) {
+              indexes.push(name);
+            }
+            next(err);
+          });
+        } else if (props[name].unique && results.hash[name]) {
+          db.get(prefix+':uniques:'+modelName+':'+name+':'+results.hash[name], function (err, unique_id) {
+            if (id !== unique_id) {
+              uniques.push(name);
+            }
+            next(err);
+          });
+        } else {
+          next();
+        }
+      }, function (err) {
+        callback(err, {
+          index: indexes,
+          unique: uniques
+        });
+      });
+    }]
+  }, function (err, results) {
     if (err) {
       next(new InstanceError(err));
-    } else if ( ! properties) {
+    } else if ( ! results.hash) {
       next(new InstanceError('not_found', 404));
     } else {
       res.ok({
-        properties: properties
+        properties: results.hash,
+        wrong_indexes: results.indexChecked
       });
     }
   });
@@ -147,7 +187,7 @@ app.get('/find/:modelname/:property/:value', auth.isLoggedIn, auth.may('list', '
 });
 
 
-app.get('/remove/:modelname/:id', auth.isLoggedIn, auth.may('list', 'Instance'), function (req, res, next) {
+app.del('/:modelname/:id', auth.isLoggedIn, auth.may('list', 'Instance'), function (req, res, next) {
   var db = req.getDb();
   var prefix = req.getPrefix();
   

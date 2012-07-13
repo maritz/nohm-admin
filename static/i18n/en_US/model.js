@@ -32,6 +32,19 @@ module.exports = {
     reset: "Reset",
     no_instances: "No instances found."
   },
+  instance: {
+    instance_of: "Instance of %s",
+    no_relations: "This model does not have any relations. It is lonely and quite possibly a little sad.",
+    relations: "Relations",
+    related_name: "To model \"%s\"",
+    relation_name: "%s",
+    actions: "Instance actions",
+    edit: "Edit",
+    unlink: "Unlink",
+    remove: "Remove",
+    link: "Link",
+    fix_index: "Fix indices/uniques"
+  },
   version_warning_overlay: {
     text: "This instance was saved with a model definition that is not identical to that of the last saved instance of this model.<br/>\
           Inconsitencies may arise from this the next time this instance is loaded or saved.<br/>\
@@ -44,11 +57,8 @@ module.exports = {
     text: "The property \"%s\" is not present in the current model definition anymore.<br/><br/>If this is not intentional, press \"Remove\" to remove it from the hash in the database.",
     remove: "Remove"
   },
-  instance: {
-    instance_of: "Instance of %s",
-    no_relations: "This model does not have any relations. It is lonely and quite possibly a little sad.",
-    relations: "Relations",
-    related_name: "To model \"%s\"",
-    relation_name: "%s"
+  remove_overlay: {
+    text: "This will remove the instance completely from the database.<br/><br/>You cannot reverse this unless you have backups and can roll back.",
+    remove: "Remove"
   }
 };
