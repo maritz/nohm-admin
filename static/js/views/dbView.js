@@ -44,8 +44,9 @@ _r(function (app) {
     },
     
     saved: function () {
-      this.render();
+      this.hideForm();
       this.model.once('saved', this.saved);
+      app.reload();
     }
   });
   
