@@ -1,3 +1,6 @@
+<script type="text/x-jade-tmpl" name="sub_navigation">
+</script>
+
 <script type="text/x-jade-tmpl" name="index">
 - if (data && data.length)
   ul
@@ -49,11 +52,21 @@ table
     - each prop, name in args[0]
       tr
         td=name
-        td=prop.type
-        td=prop.defaultValue
+        
+        td
+          span(data-shorten:300)
+            =prop.type
+        
+        td
+          - if (_.isObject(prop.defaultValue))
+            =JSON.stringify(prop.defaultValue)
+          - else
+            =prop.defaultValue
         td=prop.index
+        
         td=prop.unique
-        td.last=prop.validations
+        
+        td.last=JSON.stringify(prop.validations)
 </script>
 
 <script type="text/x-jade-tmpl" name="instance_search">
@@ -110,7 +123,9 @@ form.form-search
         each property, property_name in properties
           td
             - if (props && props.hasOwnProperty(property_name))
-              =props[property_name]
+              span(data-shorten:200)
+                = props[property_name]
+                
         
         td.last
           - if (props && props.__meta_version !== model_definition.get('version'))
@@ -155,7 +170,7 @@ ul.instance_details
   li
     label=_t('version')
     = data.get('properties').__meta_version
-    - if (data.get('properties') !== model_definition.get('version'))
+    - if (data.get('properties').__meta_version !== model_definition.get('version'))
       i.icon-warning-sign.version_warning
     
   li
@@ -176,15 +191,25 @@ ul.instance_details
             tr
               td=name
               
-              td=prop
+              td
+                span(data-shorten:250)
+                  =prop
               
               td
                 - if (model_properties.hasOwnProperty(name))
-                  =model_properties[name].type
+                  span(data-shorten:250)
+                    =model_properties[name].type
+                - else
+                  | string
                   
               td
-                - if (model_properties.hasOwnProperty(name))
-                  =model_properties[name].defaultValue
+                span(data-shorten:250)
+                  - if (model_properties.hasOwnProperty(name))
+                    - var defaultValue = model_properties[name].defaultValue
+                    - if (_.isObject(defaultValue))
+                      =JSON.stringify(defaultValue)
+                    - else
+                      =defaultValue
                   
               td.last
                 - if ( ! model_properties.hasOwnProperty(name))

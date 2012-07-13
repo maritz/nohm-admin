@@ -117,21 +117,13 @@ app.get('/find/:modelname/:property/:value', auth.isLoggedIn, auth.may('list', '
     },
     function (property_string, done) {
       var props = JSON.parse(property_string);
-      if ( ! props.hasOwnProperty(property)) {
-        return done('Invalid property in search parameters: '+property, null);
-      }
-      
-      var is_indexed = props[property].index;
-      var is_unique = props[property].unique;
-      if ( ! is_indexed && ! is_unique) {
-        done('Property in search parameters is not indexed or unique: '+property, null);
-      } else {
-        if (is_unique) {
-          db.get(prefix+':uniques:'+modelName+':'+property+':'+value, done);
-        } else {
-          db.smembers(prefix+':index:'+modelName+':'+property+':'+value, done);
-        }
-      }
+      var model = require('nohm').Nohm.model(modelName, {
+        properties: props,
+        client: req.getDb()
+      }, true);
+      var search = {};
+      search[property] = value;
+      model.find(search, done);
     }
   ], function (err, result) {
     if (err) {
@@ -150,6 +142,36 @@ app.get('/find/:modelname/:property/:value', auth.isLoggedIn, auth.may('list', '
           return {id: id};
         })
       });
+    }
+  });
+});
+
+
+app.get('/remove/:modelname/:id', auth.isLoggedIn, auth.may('list', 'Instance'), function (req, res, next) {
+  var db = req.getDb();
+  var prefix = req.getPrefix();
+  
+  var modelName = req.param('modelname');
+  var id = req.param('id');
+  
+  async.waterfall([
+    function (done) {
+      db.get(prefix+':meta:properties:'+modelName, done);
+    },
+    function (property_string, done) {
+      var props = JSON.parse(property_string);
+      var model = require('nohm').Nohm.model(modelName, {
+        properties: props,
+        client: req.getDb()
+      }, true);
+      
+      model.remove(id, done);
+    }
+  ], function (err, result) {
+    if (err) {
+      next(new InstanceError(err));
+    } else {
+      res.ok();
     }
   });
 });
