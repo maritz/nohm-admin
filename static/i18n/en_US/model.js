@@ -34,6 +34,10 @@ module.exports = {
   },
   instance: {
     instance_of: "Instance of %s",
+    property: {
+      value: "Typecasted value",
+      value_raw: "Raw DB value"
+    },
     no_relations: "This model does not have any relations. It is lonely and quite possibly a little sad.",
     relations: "Relations",
     related_name: "To model \"%s\"",
@@ -60,5 +64,20 @@ module.exports = {
   remove_overlay: {
     text: "This will remove the instance completely from the database.<br/><br/>You cannot reverse this unless you have backups and can roll back.",
     remove: "Remove"
+  },
+  edit_property: {
+    header: "Edit property",
+    text: "You can edit the property in two write modes: raw or typecasted.<br/>\
+        <b>Raw</b>: The value is written directly to the database, no changes, no indexing, no unique locks.<br/>\
+        <b>Typecasted</b>: The value is given to the models .p() method and typecasting and validation are applied and indexes and unique locks are created.",
+    forms: {
+      labels: {
+        value: "Value",
+        mode: "Write mode",
+        raw: "Raw",
+        typecasted: "Typecasted"
+      },
+      submit: "Edit"
+    }
   }
 };

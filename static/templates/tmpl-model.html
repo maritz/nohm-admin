@@ -200,6 +200,33 @@ button.btn(data-dismiss: "modal")= _t('cancel')
 
 
 <!--
+ Edit overlay
+ -->
+<script type="text/x-jade-tmpl" name="edit_property">
+- locals.header = _t('header')
+!= _t('text')
+form.form-horizontal
+  
+  !=form('input', { name: 'value', validate: false, value: model.get('value')})
+  
+  .control-group
+    .control-label
+      =_t('forms.labels.mode')
+    .controls
+      select.input-medium(name: 'mode', data-link: 'mode')
+        option(value:'nohm')=_t('forms.labels.typecasted')
+        option(value:'raw')=_t('forms.labels.raw')
+      
+- locals.footer = partial('edit_property_footer')
+</script>
+
+<script type="text/x-jade-tmpl" name="edit_property_footer">
+button.btn.confirm= _t('forms.submit')
+button.btn(data-dismiss: "modal")= _t('cancel')
+</script>
+
+
+<!--
  Instance details
  -->
 <script type="text/x-jade-tmpl" name="instance">
@@ -222,6 +249,7 @@ ul.instance_details
     table
       thead
         th=_t('property.name')
+        th=_t('property.value_raw')
         th=_t('property.value')
         th=_t('property.type')
         th=_t('property.defaultValue')
@@ -229,24 +257,29 @@ ul.instance_details
     
       tbody
         - var model_properties = model_definition.get('properties')
+        - var typecasted = data.get('typecasted')
         - each prop, name in data.get('properties')
           - if (name !== '__meta_version')
             tr
               td=name
               
               td
-                span(data-shorten:250)
+                span(data-shorten:180)
                   =prop
               
               td
+                span(data-shorten:180)
+                  =JSON.stringify(typecasted[name])
+              
+              td
                 - if (model_properties.hasOwnProperty(name))
-                  span(data-shorten:250)
+                  span(data-shorten:180)
                     =model_properties[name].type
                 - else
                   | string
                   
               td
-                span(data-shorten:250)
+                span(data-shorten:180)
                   - if (model_properties.hasOwnProperty(name))
                     - var defaultValue = model_properties[name].defaultValue
                     - if (_.isObject(defaultValue))

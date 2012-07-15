@@ -53,11 +53,27 @@ server.use(function (req, res, next) {
       req.db_defaulted = true;
     }
     return db.client;
-  }
+  };
   
   req.getPrefix = function () {
     return req.session.nohm_prefix || registry.config.nohm.prefix;
-  }
+  };
+  
+  req.getModel = function (modelName, callback) {
+    var db = req.getDb();
+    db.get(req.getPrefix()+':meta:properties:'+modelName, 
+      function (err, property_string) {
+        if (err) {
+          callback(err);
+        } else {
+          var props = JSON.parse(property_string);
+          callback(null, require('nohm').Nohm.model(modelName, {
+            properties: props,
+            client: db
+          }, true));
+        }
+      });
+  };
   
   var _ok = res.ok;
   res.ok = function (obj) {

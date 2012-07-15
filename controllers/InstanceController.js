@@ -84,6 +84,12 @@ app.get('/properties/:modelname/:id', auth.isLoggedIn, auth.may('view', 'Instanc
           unique: uniques
         });
       });
+    }],
+    original_model: function (callback) {
+      req.getModel(modelName, callback);
+    },
+    typecasted: ['original_model', function (done, result) {
+      new result.original_model(id, done);
     }]
   }, function (err, results) {
     if (err) {
@@ -93,6 +99,7 @@ app.get('/properties/:modelname/:id', auth.isLoggedIn, auth.may('view', 'Instanc
     } else {
       res.ok({
         properties: results.hash,
+        typecasted: results.typecasted,
         wrong_indexes: results.indexChecked
       });
     }
@@ -144,23 +151,13 @@ app.get('/relations/:modelname/:id', auth.isLoggedIn, auth.may('view', 'Instance
 
 
 app.get('/find/:modelname/:property/:value', auth.isLoggedIn, auth.may('list', 'Instance'), function (req, res, next) {
-  var db = req.getDb();
-  var prefix = req.getPrefix();
-  
   var modelName = req.param('modelname');
   var property = req.param('property');
   var value = req.param('value');
   
   async.waterfall([
-    function (done) {
-      db.get(prefix+':meta:properties:'+modelName, done);
-    },
-    function (property_string, done) {
-      var props = JSON.parse(property_string);
-      var model = require('nohm').Nohm.model(modelName, {
-        properties: props,
-        client: req.getDb()
-      }, true);
+    async.apply(req.getModel, modelName),
+    function (model, done) {
       var search = {};
       search[property] = value;
       model.find(search, done);
@@ -188,32 +185,73 @@ app.get('/find/:modelname/:property/:value', auth.isLoggedIn, auth.may('list', '
 
 
 app.del('/:modelname/:id', auth.isLoggedIn, auth.may('delete', 'Instance'), function (req, res, next) {
-  var db = req.getDb();
-  var prefix = req.getPrefix();
-  
   var modelName = req.param('modelname');
   var id = req.param('id');
   
   async.waterfall([
-    function (done) {
-      db.get(prefix+':meta:properties:'+modelName, done);
-    },
-    function (property_string, done) {
-      var props = JSON.parse(property_string);
-      var model = require('nohm').Nohm.model(modelName, {
-        properties: props,
-        client: req.getDb()
-      }, true);
-      
+    async.apply(req.getModel, modelName),
+    function (model, done) {
       model.remove(id, done);
     }
-  ], function (err, result) {
+  ], function (err) {
     if (err) {
       next(new InstanceError(err));
     } else {
       res.ok();
     }
   });
+});
+
+
+app.put('/property/:modelname/:id', auth.isLoggedIn, auth.may('edit', 'Instance'), function (req, res, next) {
+  var modelName = req.param('modelname');
+  var id = req.param('id');
+  var mode = req.param('mode');
+  var property = req.param('property');
+  var value = req.param('value');
+  
+  var done = function (err, error_fields) {
+    if (err && err !== 'invalid') {
+      next(new InstanceError(err));
+    } else if (err) {
+      next(new InstanceError({error: err, fields: {value: error_fields[property]}}, 400));
+    } else {
+      res.ok();
+    }
+  };
+  
+  if (mode !== 'nohm') {
+    var db = req.getDb();
+    var prefix = req.getPrefix();
+    db.hset(prefix+':hash:'+modelName+':'+id, property, value, done);
+  } else {
+    var model_instance;
+    async.waterfall([
+      async.apply(req.getModel, modelName),
+      function (Model, next) {
+        model_instance = new Model(id, next);
+      },
+      function (props, next) {
+        model_instance.p(property, value);
+        
+        // If the loaded value is the same as the input but typecasting would make it different, nohm does not recognize the update to the property.
+        // Thus we have to manually trigger it. This is an ugly hack, that under normal circumstances shouldn't be neccessary (because the value from the db should not have been in that form in the first place)
+        // Example: 
+        // We have a property that is typecasted to integer, but from the database we receive a non-integer value. (database corruption or model definition changed without changing the dataset)
+        // Typecasting now casts the loaded value to 0.
+        // If the input value is invalid as well or 0, no update is triggered, thus the old non-integer value stays in the database. 
+        // (which under normal circumstances isn't much of a problem either but here we want to explicitly overwrite it.)
+        //
+        // This sadly causes unique checks to not work properly anymore... Let's just ignore that! YEEEY
+        // TODO: fix that shit, you lazy fucker.
+        model_instance.properties[property].__updated = true;
+        
+        model_instance.save(function (err) {
+          next(err, model_instance.errors);
+        });
+      }
+    ], done);
+  }
 });
 
 

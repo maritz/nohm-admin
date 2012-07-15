@@ -213,7 +213,10 @@ _r(function (app) {
     },
     
     editProperty: function (e) {
-      
+      var property = $(e.target).closest('tr').children('td').first().text();
+      var $el = $('#modal').append('<div></div>');
+      var view = new EditPropertyView(null, null, $el, [property, this.model]);
+      view.model.once('saved', this.render);
     },
     
     unlink: function (e) {
@@ -239,6 +242,73 @@ _r(function (app) {
     
     fixIndex: function (e) {
       
+    }
+    
+  });
+  
+  var overlay_form = app.base.formView.extend({
+    successRender: function () {
+      app.overlay({
+        module: this.module, 
+        template: this.action,
+        locals: {
+          model: this.model
+        },
+        onRender: this.onRender,
+        cancel: this.close
+      });
+    },
+    
+    onRender: function ($modal) {
+      this.$el = $modal;
+      this.el = this.$el[0];
+      
+      this.delegateEvents();
+      
+      this.handler = new app.formHandler(this);
+      this.handler.link();
+      
+      if (_.isFunction(this.close)) {
+        this.model.bind('saved', this.close);
+      }
+      
+      if (_.isFunction(this.error)) {
+        this.model.bind('error', this.error);
+      }
+    },
+    
+    onConfirm: function () {
+      this.$el.find('form').submit();
+    },
+    
+    close: function () {
+      app.closeOverlay();
+      this.model.unbind();
+      this.$el.remove();
+    }
+  });
+  
+  var EditPropertyView = overlay_form.extend({
+    
+    auto_render: true,
+    module: 'model',
+    action: 'edit_property',
+    model: app.models.EditProperty,
+    
+    events: {
+      'click button.confirm': 'onConfirm'
+    },
+    
+    init: function () {
+      var property = this.params[0];
+      var model = this.params[1];
+      this.model.set({
+        property: property,
+        value: model.get('properties')[property],
+        id: model.id,
+        model_name: model.model_name,
+        mode: 'raw'
+      });
     }
     
   });

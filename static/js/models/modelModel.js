@@ -31,5 +31,13 @@ _r(function (app) {
       return this.urlRoot+'relations/'+this.model_name+'/'+this.instance_id;
     }
   });
+
+  app.models.EditProperty = app.base.model.extend({
+    urlRoot: '/REST/Instance/',
+    
+    url: function () {
+      return this.urlRoot+'property/'+this.get('model_name')+'/'+this.id;
+    }
+  });
   
 });
