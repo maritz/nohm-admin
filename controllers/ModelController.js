@@ -1,5 +1,4 @@
 var app = require('express').createServer();
-var auth = require(__dirname+'/../helpers/auth');
 var async = require('async');
 
 function ModelError(msg, code){
@@ -17,7 +16,7 @@ function ModelError(msg, code){
 ModelError.prototype.__proto__ = Error.prototype;
 
 
-app.get('/', auth.isLoggedIn, auth.may('list', 'Model'), function (req, res, next) {
+app.get('/', function (req, res, next) {
   var db = req.getDb();
   var prefix = req.getPrefix();
   db.keys(prefix+':idsets:*', function (err, keys) {
@@ -39,12 +38,12 @@ app.get('/', auth.isLoggedIn, auth.may('list', 'Model'), function (req, res, nex
 });
 
 
-app.get('/:modelname', auth.isLoggedIn, auth.may('view', 'Model'), function (req, res, next) {
+app.get('/:modelname', function (req, res, next) {
   var db = req.getDb();
   var prefix = req.getPrefix();
-  
+
   var modelName = req.param('modelname');
-  
+
   async.parallel({
     properties: function (done) {
       db.get(prefix+':meta:properties:'+modelName, function (err, props) {

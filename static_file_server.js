@@ -19,17 +19,17 @@ var stylus_middleware = stylus.middleware({
       .use(require('nib')());
   }
 });
-  
+
 exports.init = function (server) {
-  
+
   server.use(stylus_middleware);
-  
-  server.use(express['static'](__dirname + '/static', { 
-    maxAge: server.set('env') === 'development' ? 1 : oneDay 
+
+  server.use(express['static'](__dirname + '/static', {
+    maxAge: server.set('env') === 'development' ? 1 : oneDay
   }));
-  
+
   var basedir = __dirname + '/static/js/';
-  
+
   // reverse order of how it ends up in the merged files.
   var files = Array.prototype.concat(
     file_helper.getFiles(basedir, 'libs/', ['modernizr-2.0.6.custom.min.js', 'jquery-1.7.1.js']),
@@ -42,7 +42,7 @@ exports.init = function (server) {
     file_helper.getFiles(basedir, 'sockets/'),
     file_helper.getFiles(basedir, '')
   );
-  
+
   var assetManagerMiddleware = assetManager({
     'js': {
       'route': /\/js\/[0-9]+\/merged\.js/,
@@ -63,13 +63,8 @@ exports.init = function (server) {
   });
   server.use(assetManagerMiddleware);
   server.use(express.favicon());
-  
-  Nohm.setExtraValidations(__dirname+'/models/validations.js');
-  
-  server.use(Nohm.connect());
-  
-  
-  server.get('/', function (req, res) { 
+
+  server.get('/', function (req, res) {
     res.render(__dirname+'/static/index.jade', {
       layout: false,
       colons: true,

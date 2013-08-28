@@ -11,8 +11,6 @@ ul.breadcrumb
 ul.nav.nav-tabs
   li
     a(href: '#model') Models
-  li
-    a(href: '#user') Users
 ul.sub_navigation
 </script>
 
@@ -33,10 +31,10 @@ ul
   li("class": (current === 1 ? 'disabled': ''))
     a(href: '#', data-page: current-1)
       =_t('pagination.previous')
-      
-  
+
+
   if (num_pages > 10)
-    
+
     if (current > 4)
       - var middle_start = current-2
       li
@@ -45,29 +43,29 @@ ul
         a(href: '#') ...
     else
       - var middle_start = 1
-      
+
     if (num_pages-current > 4)
       - var middle_end = current+2
     else
       - var middle_end = num_pages
-    
+
     - for (var i = middle_start; i <= middle_end; i++)
       li("class": (current === i ? 'active': ''))
         a(href: '#', data-page: i)
           =i
-  
+
     if (num_pages-current > 4)
       li.disabled
         a(href: '#') ...
       li
         a(href: '#', data-page: num_pages)= num_pages
-        
+
   else
     - for (var i = 1; i <= num_pages; i++)
       li("class": (current === i ? 'active': ''))
         a(href: '#', data-page: i)
           =i
-        
+
   li("class": (current === num_pages ? 'disabled': ''))
     a(href: '#', data-page: current+1)
       =_t('pagination.next')
@@ -91,9 +89,9 @@ br
 <script type="text/x-jade-tmpl" name="general_error">
 | There was a problem while rendering the requested page.
 br
-| You can 
+| You can
 a.reload_page(href:'#asd') retry
-| , 
+| ,
 a.go_back(href:'#') go back
 |  or continue browsing from here.
 br

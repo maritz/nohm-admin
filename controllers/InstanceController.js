@@ -1,5 +1,4 @@
 var app = require('express').createServer();
-var auth = require(__dirname+'/../helpers/auth');
 var async = require('async');
 var cp = require('child_process');
 
@@ -18,12 +17,12 @@ function InstanceError(msg, code){
 InstanceError.prototype.__proto__ = Error.prototype;
 
 
-app.get('/list/:modelname', auth.isLoggedIn, auth.may('list', 'Instance'), function (req, res, next) {
+app.get('/list/:modelname', function (req, res, next) {
   var db = req.getDb();
   var prefix = req.getPrefix();
-  
+
   var modelName = req.param('modelname');
-  
+
   db.smembers(prefix+':idsets:'+modelName, function (err, ids) {
     if (err) {
       next(new InstanceError(err));
@@ -39,13 +38,13 @@ app.get('/list/:modelname', auth.isLoggedIn, auth.may('list', 'Instance'), funct
 });
 
 
-app.get('/properties/:modelname/:id', auth.isLoggedIn, auth.may('view', 'Instance'), function (req, res, next) {
+app.get('/properties/:modelname/:id', function (req, res, next) {
   var db = req.getDb();
   var prefix = req.getPrefix();
-  
+
   var modelName = req.param('modelname');
   var id = req.param('id');
-  
+
   async.auto({
     hash: function (callback) {
       db.hgetall(prefix+':hash:'+modelName+':'+id, callback);
@@ -107,13 +106,13 @@ app.get('/properties/:modelname/:id', auth.isLoggedIn, auth.may('view', 'Instanc
 });
 
 
-app.get('/relations/:modelname/:id', auth.isLoggedIn, auth.may('view', 'Instance'), function (req, res, next) {
+app.get('/relations/:modelname/:id', function (req, res, next) {
   var db = req.getDb();
   var prefix = req.getPrefix();
-  
+
   var modelName = req.param('modelname');
   var id = req.param('id');
-  
+
   async.waterfall([
     function (done) {
       db.smembers(prefix+':relationKeys:'+modelName+':'+id, done);
@@ -124,7 +123,7 @@ app.get('/relations/:modelname/:id', auth.isLoggedIn, auth.may('view', 'Instance
         var parts = key.split(':');
         var related_model = parts[4];
         var relation_name = parts[3];
-        
+
         db.smembers(key, function (err, ids) {
           if (err) {
             cb(err);
@@ -150,11 +149,11 @@ app.get('/relations/:modelname/:id', auth.isLoggedIn, auth.may('view', 'Instance
 });
 
 
-app.get('/find/:modelname/:property/:value', auth.isLoggedIn, auth.may('list', 'Instance'), function (req, res, next) {
+app.get('/find/:modelname/:property/:value', function (req, res, next) {
   var modelName = req.param('modelname');
   var property = req.param('property');
   var value = req.param('value');
-  
+
   async.waterfall([
     async.apply(req.getModel, modelName),
     function (model, done) {
@@ -184,10 +183,10 @@ app.get('/find/:modelname/:property/:value', auth.isLoggedIn, auth.may('list', '
 });
 
 
-app.del('/:modelname/:id', auth.isLoggedIn, auth.may('delete', 'Instance'), function (req, res, next) {
+app.del('/:modelname/:id', function (req, res, next) {
   var modelName = req.param('modelname');
   var id = req.param('id');
-  
+
   async.waterfall([
     async.apply(req.getModel, modelName),
     function (model, done) {
@@ -203,13 +202,13 @@ app.del('/:modelname/:id', auth.isLoggedIn, auth.may('delete', 'Instance'), func
 });
 
 
-app.put('/property/:modelname/:id', auth.isLoggedIn, auth.may('edit', 'Instance'), function (req, res, next) {
+app.put('/property/:modelname/:id', function (req, res, next) {
   var modelName = req.param('modelname');
   var id = req.param('id');
   var mode = req.param('mode');
   var property = req.param('property');
   var value = req.param('value');
-  
+
   var done = function (err, error_fields) {
     if (err && err !== 'invalid') {
       next(new InstanceError(err));
@@ -219,7 +218,7 @@ app.put('/property/:modelname/:id', auth.isLoggedIn, auth.may('edit', 'Instance'
       res.ok();
     }
   };
-  
+
   if (mode !== 'nohm') {
     var db = req.getDb();
     var prefix = req.getPrefix();
@@ -233,19 +232,19 @@ app.put('/property/:modelname/:id', auth.isLoggedIn, auth.may('edit', 'Instance'
       },
       function (props, next) {
         model_instance.p(property, value);
-        
+
         // If the loaded value is the same as the input but typecasting would make it different, nohm does not recognize the update to the property.
         // Thus we have to manually trigger it. This is an ugly hack, that under normal circumstances shouldn't be neccessary (because the value from the db should not have been in that form in the first place)
-        // Example: 
+        // Example:
         // We have a property that is typecasted to integer, but from the database we receive a non-integer value. (database corruption or model definition changed without changing the dataset)
         // Typecasting now casts the loaded value to 0.
-        // If the input value is invalid as well or 0, no update is triggered, thus the old non-integer value stays in the database. 
+        // If the input value is invalid as well or 0, no update is triggered, thus the old non-integer value stays in the database.
         // (which under normal circumstances isn't much of a problem either but here we want to explicitly overwrite it.)
         //
         // This sadly causes unique checks to not work properly anymore... Let's just ignore that! YEEEY
         // TODO: fix that shit, you lazy fucker.
         model_instance.properties[property].__updated = true;
-        
+
         model_instance.save(function (err) {
           next(err, model_instance.errors);
         });
