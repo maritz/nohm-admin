@@ -44,12 +44,4 @@ var defaults = {
   }
 };
 
-if (env === 'production' || env === 'staging') {
-  defaults["static"].port = 80;
-}
-
-if (env === 'staging') {
-  defaults['static'].port = 3004;
-}
-
 module.exports = defaults;
